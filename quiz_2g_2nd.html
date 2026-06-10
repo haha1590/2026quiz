@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>2학년 2차 정기고사 대비 온라인 모의고사</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:#f0f4f8;color:#1a1a1a;word-break:keep-all}
+
+/* ── 시작화면 ── */
+#start-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f6e56,#1a9e7a)}
+.start-box{background:#fff;border-radius:20px;padding:40px 36px;max-width:480px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+.start-box h1{font-size:20px;font-weight:700;color:#0f6e56;margin-bottom:4px}
+.start-box h2{font-size:16px;font-weight:500;color:#444;margin-bottom:20px}
+.start-box .sub{font-size:13px;color:#888;margin-bottom:20px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px}
+.info-card{background:#f0fbf6;border-radius:10px;padding:14px 8px;text-align:center}
+.info-card .num{font-size:24px;font-weight:700;color:#0f6e56}
+.info-card .label{font-size:11px;color:#666;margin-top:2px}
+.pass-badge{background:#fef9ec;border:1px solid #f0c040;border-radius:10px;padding:12px;margin-bottom:20px;font-size:13px;color:#7a5900}
+.pass-badge strong{color:#b87c00;font-size:15px}
+.name-input{width:100%;padding:12px 16px;border:2px solid #e0e0e0;border-radius:10px;font-size:15px;font-family:inherit;margin-bottom:16px;transition:.2s}
+.name-input:focus{border-color:#0f6e56;outline:none}
+.start-btn{width:100%;padding:14px;background:#0f6e56;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s}
+.start-btn:hover{background:#0a5440;transform:translateY(-1px)}
+
+/* ── 헤더 ── */
+#quiz-screen{display:none}
+.quiz-header{background:linear-gradient(135deg,#0f6e56,#1a9e7a);color:#fff;padding:14px 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.quiz-header-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.header-title{font-size:14px;font-weight:700}
+.header-sub{font-size:12px;opacity:.85;margin-top:2px}
+.progress-wrap{text-align:right}
+.progress-bar-bg{width:120px;height:6px;background:rgba(255,255,255,.3);border-radius:3px;margin-top:4px}
+.progress-bar-fill{height:6px;background:#fff;border-radius:3px;transition:width .3s}
+
+/* ── 문제 영역 ── */
+.quiz-main{max-width:860px;margin:0 auto;padding:20px 16px 120px}
+.q-block{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.q-num{font-size:12px;font-weight:700;color:#0f6e56;margin-bottom:6px}
+.q-cat{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;margin-bottom:8px;font-weight:500}
+.cat-순환계{background:#e8f4ff;color:#1a4fa0}
+.cat-호흡기계{background:#e8fff5;color:#0f6e56}
+.cat-소화기계{background:#fff3e8;color:#a05a00}
+.q-text{font-size:15px;font-weight:500;line-height:1.7;margin-bottom:14px}
+.choice-list{list-style:none}
+.choice-item{margin-bottom:8px}
+.choice-btn{width:100%;text-align:left;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;font-size:14px;font-family:inherit;cursor:pointer;transition:.15s;color:#1a1a1a;line-height:1.5}
+.choice-btn:hover{border-color:#0f6e56;background:#f0fbf6}
+.choice-btn.selected{border-color:#0f6e56;background:#e8fff5;font-weight:500}
+.choice-btn.correct{border-color:#059669;background:#d1fae5;color:#065f46;font-weight:700}
+.choice-btn.wrong{border-color:#dc2626;background:#fee2e2;color:#991b1b}
+.choice-btn.show-correct{border-color:#059669;background:#d1fae5;color:#065f46;font-weight:700}
+.q-exp{margin-top:12px;padding:10px 14px;background:#fefce8;border-radius:8px;font-size:13px;color:#555;line-height:1.6;border-left:3px solid #f0c040;display:none}
+.q-exp.show{display:block}
+
+/* ── 하단 바 ── */
+.submit-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e0e0e0;padding:12px 20px;z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.08)}
+.submit-bar-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.answered-count{font-size:13px;color:#666}
+.answered-count strong{color:#0f6e56;font-size:16px}
+.submit-btn{padding:12px 32px;background:#0f6e56;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s}
+.submit-btn:hover{background:#0a5440}
+.submit-btn:disabled{background:#ccc;cursor:not-allowed}
+
+/* ── 결과 화면 ── */
+#result-screen{display:none;min-height:100vh;background:#f0f4f8;padding-bottom:40px}
+.result-header{background:linear-gradient(135deg,#0f6e56,#1a9e7a);color:#fff;padding:30px 20px;text-align:center}
+.result-name{font-size:16px;opacity:.9;margin-bottom:4px}
+.result-score{font-size:64px;font-weight:700;line-height:1}
+.result-total{font-size:18px;opacity:.8;margin-top:6px}
+.result-body{max-width:860px;margin:0 auto;padding:20px 16px}
+
+.result-msg-box{border-radius:16px;padding:20px 24px;margin-bottom:20px;text-align:center}
+.result-msg-box.pass{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:2px solid #059669}
+.result-msg-box.fail{background:linear-gradient(135deg,#fee2e2,#fecaca);border:2px solid #dc2626}
+.result-msg-box .msg-icon{font-size:48px;margin-bottom:8px}
+.result-msg-box .msg-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.result-msg-box.pass .msg-title{color:#065f46}
+.result-msg-box.fail .msg-title{color:#991b1b}
+.result-msg-box .msg-sub{font-size:14px;line-height:1.7}
+.result-msg-box.pass .msg-sub{color:#047857}
+.result-msg-box.fail .msg-sub{color:#b91c1c}
+
+.cat-scores{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.cat-score-item{background:#fff;border-radius:12px;padding:16px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.cat-score-item.순환계{background:#f0f6ff}
+.cat-score-item.호흡기계{background:#f0fbf6}
+.cat-score-item.소화기계{background:#fff7f0}
+.cat-score-item .cs-num{font-size:22px;font-weight:700}
+.cat-score-item.순환계 .cs-num{color:#1a4fa0}
+.cat-score-item.호흡기계 .cs-num{color:#0f6e56}
+.cat-score-item.소화기계 .cs-num{color:#a05a00}
+.cat-score-item .cs-label{font-size:11px;color:#666;margin-top:3px}
+.wrong-list-title{font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:12px;text-align:left}
+.wrong-item{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:10px;border-left:4px solid #dc2626;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.wrong-item .wi-num{font-size:12px;font-weight:700;color:#dc2626;margin-bottom:6px}
+.wrong-item .wi-q{font-size:13px;font-weight:500;margin-bottom:8px;line-height:1.6}
+.wrong-item .wi-my{font-size:12.5px;color:#dc2626;margin-bottom:3px}
+.wrong-item .wi-ans{font-size:12.5px;color:#059669;font-weight:700}
+.wrong-item .wi-exp{font-size:12px;margin-top:8px;padding:8px 12px;background:#fefce8;border-radius:6px;color:#555;line-height:1.6}
+.retry-btn{width:100%;padding:14px;background:#0f6e56;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:16px;transition:.2s}
+.retry-btn:hover{background:#0a5440}
+@media(max-width:600px){
+  .cat-scores{grid-template-columns:1fr 1fr}
+  .result-score{font-size:48px}
+  .submit-bar{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<!-- ── 시작 화면 ── -->
+<div id="start-screen">
+<div class="start-box">
+  <div style="font-size:40px;margin-bottom:12px">📝</div>
+  <h1>2학년 2차 정기고사 대비</h1>
+  <h2>온라인 모의고사</h2>
+  <div class="sub">순환계 · 호흡기계 · 소화기계 | 총 50문제</div>
+  <div class="info-grid">
+    <div class="info-card"><div class="num">50</div><div class="label">문항</div></div>
+    <div class="info-card"><div class="num">5지</div><div class="label">선다형</div></div>
+    <div class="info-card"><div class="num">즉시</div><div class="label">채점</div></div>
+  </div>
+  <div class="pass-badge">🎯 합격 기준: <strong>30문항 이상</strong> 정답 (60점 이상)</div>
+  <input class="name-input" id="student-name" type="text" placeholder="이름을 입력하세요" maxlength="20">
+  <button class="start-btn" onclick="startQuiz()">시험 시작하기 →</button>
+</div>
+</div>
+
+<!-- ── 퀴즈 화면 ── -->
+<div id="quiz-screen">
+  <div class="quiz-header">
+    <div class="quiz-header-inner">
+      <div>
+        <div class="header-title">2학년 2차 정기고사 대비</div>
+        <div class="header-sub" id="student-label"></div>
+      </div>
+      <div class="progress-wrap">
+        <div id="progress-text" style="font-size:13px;text-align:right">0 / 50</div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="quiz-main" id="quiz-main"></div>
+  <div class="submit-bar">
+    <div class="submit-bar-inner">
+      <div class="answered-count">답안 입력: <strong id="ans-count">0</strong> / 50</div>
+      <button class="submit-btn" id="submit-btn" onclick="submitQuiz()" disabled>채점하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 결과 화면 ── -->
+<div id="result-screen">
+  <div class="result-header">
+    <div class="result-name" id="result-name"></div>
+    <div class="result-score" id="result-score">0</div>
+    <div class="result-total">/ 50 문항 정답</div>
+  </div>
+  <div class="result-body">
+    <div class="result-msg-box" id="result-msg-box">
+      <div class="msg-icon" id="msg-icon"></div>
+      <div class="msg-title" id="msg-title"></div>
+      <div class="msg-sub" id="msg-sub"></div>
+    </div>
+    <div class="cat-scores" id="cat-scores"></div>
+    <div id="wrong-section"></div>
+    <button class="retry-btn" onclick="retryQuiz()">🔄 다시 풀기</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [{"num": 1, "q": "심장의 좌심실에서 나온 혈액이 처음으로 들어가는 혈관은?", "choices": ["대동맥", "폐동맥", "폐정맥", "대정맥", "관상동맥"], "ans": 1, "cat": "순환계", "exp": "대동맥은 좌심실과 직접 연결된 가장 큰 동맥으로, 전신 순환의 시작점이다."}, {"num": 2, "q": "심근경색증의 가장 특징적인 증상은?", "choices": ["숨가쁨과 기침", "흉부의 압박감과 방사통", "두통과 현기증", "복통과 구역질", "발열과 오한"], "ans": 2, "cat": "순환계", "exp": "심근경색의 대표 증상은 흉골 뒤 또는 좌흉부의 압박감·쥐어짜는 통증으로 팔·턱·등으로 방사된다. 니트로글리세린으로도 완화되지 않는다."}, {"num": 3, "q": "고혈압의 기준으로 옳은 것은?", "choices": ["수축기 혈압 120mmHg 이상", "이완기 혈압 70mmHg 이상", "수축기 혈압 140mmHg 이상 또는 이완기 혈압 90mmHg 이상", "수축기 혈압 160mmHg 이상", "이완기 혈압 100mmHg 이상"], "ans": 3, "cat": "순환계", "exp": "WHO 기준 고혈압: 수축기 ≥140mmHg 또는 이완기 ≥90mmHg."}, {"num": 4, "q": "심부전 환자에게 나타나는 대표적인 증상이 아닌 것은?", "choices": ["호흡곤란", "부종", "피로감", "체중 증가", "고혈압"], "ans": 5, "cat": "순환계", "exp": "고혈압은 심부전의 원인이 될 수 있으나, 심부전 자체의 증상은 아니다. 심부전에서는 오히려 심박출량 저하로 혈압이 낮아질 수 있다."}, {"num": 5, "q": "협심증과 심근경색증을 구별하는 가장 중요한 차이점은?", "choices": ["통증의 위치", "통증의 방사 부위", "니트로글리세린 투여 후 통증 완화 여부", "통증의 종류", "통증과 관련된 증상"], "ans": 3, "cat": "순환계", "exp": "협심증은 니트로글리세린 투여 3~5분 내 통증이 완화되지만, 심근경색은 완화되지 않는다."}, {"num": 6, "q": "좌심부전 시 나타나는 특징적인 증상은?", "choices": ["하지부종", "복수", "폐부종과 호흡곤란", "경정맥 팽창", "간 비대"], "ans": 3, "cat": "순환계", "exp": "좌심부전 → 폐정맥 울혈 → 폐부종 → 호흡곤란, 기좌호흡이 특징이다."}, {"num": 7, "q": "우심부전 시 가장 두드러지게 나타나는 증상은?", "choices": ["폐부종", "기좌호흡", "하지부종과 경정맥 팽창", "야간발작성 호흡곤란", "객혈"], "ans": 3, "cat": "순환계", "exp": "우심부전 → 전신 정맥 울혈 → 하지부종, 복수, 경정맥 팽창이 특징이다."}, {"num": 8, "q": "동맥경화증의 주요 위험 인자가 아닌 것은?", "choices": ["흡연", "고혈압", "당뇨병", "규칙적인 운동", "고지혈증"], "ans": 4, "cat": "순환계", "exp": "규칙적인 운동은 동맥경화의 보호 요인이다. 흡연, 고혈압, 당뇨, 고지혈증, 비만, 가족력이 위험 인자이다."}, {"num": 9, "q": "심전도(ECG)에서 심방의 탈분극을 나타내는 파형은?", "choices": ["P파", "QRS파", "T파", "U파", "PR간격"], "ans": 1, "cat": "순환계", "exp": "P파: 심방 탈분극(수축), QRS: 심실 탈분극(수축), T파: 심실 재분극(이완)."}, {"num": 10, "q": "정상 성인의 안정 시 맥박수 범위는?", "choices": ["40~60회/분", "60~100회/분", "80~120회/분", "100~140회/분", "20~40회/분"], "ans": 2, "cat": "순환계", "exp": "정상 맥박수는 60~100회/분이며, 60 미만은 서맥, 100 초과는 빈맥이다."}, {"num": 11, "q": "혈압을 측정할 때 커프를 팔뚝에 감은 후 청진기를 대는 부위는?", "choices": ["요골동맥", "척골동맥", "상완동맥", "액와동맥", "경동맥"], "ans": 3, "cat": "순환계", "exp": "혈압 측정 시 상완동맥(antecubital fossa, 팔오금)에 청진기를 댄다."}, {"num": 12, "q": "심방세동 환자에게 가장 흔히 발생할 수 있는 합병증은?", "choices": ["폐렴", "뇌졸중(혈전색전증)", "신부전", "위궤양", "당뇨병"], "ans": 2, "cat": "순환계", "exp": "심방세동에서는 심방 내 혈류가 불규칙하여 혈전이 생성되고, 이것이 뇌로 이동하면 뇌졸중(허혈성 뇌경색)이 발생한다."}, {"num": 13, "q": "정맥류(varicose vein)가 가장 잘 발생하는 부위는?", "choices": ["상지 정맥", "하지 정맥", "복부 정맥", "경부 정맥", "두부 정맥"], "ans": 2, "cat": "순환계", "exp": "정맥류는 하지 정맥(주로 복재정맥)에 가장 많이 발생하며, 중력과 오랜 기립이 원인이다."}, {"num": 14, "q": "빈혈 환자에서 공통적으로 나타나는 증상은?", "choices": ["호흡 곤란", "피로감과 창백", "발열", "체중 증가", "혈압 상승"], "ans": 2, "cat": "순환계", "exp": "빈혈의 공통 증상: 피로감, 창백, 어지러움, 운동 시 호흡곤란이다."}, {"num": 15, "q": "항고혈압제 복용 시 갑자기 자세를 바꿀 때 조심해야 하는 이유는?", "choices": ["심박수 증가", "기립성 저혈압 발생", "혈당 상승", "신장 기능 저하", "피부 발진"], "ans": 2, "cat": "순환계", "exp": "항고혈압제 복용 시 갑작스러운 자세 변경(누운 상태 → 일어서기)은 기립성 저혈압을 유발할 수 있다."}, {"num": 16, "q": "심장 수술 후 다리를 올려주는 이유는?", "choices": ["통증 감소", "정맥 환류 증진", "동맥 혈류 차단", "근육 이완", "체온 조절"], "ans": 2, "cat": "순환계", "exp": "수술 후 다리를 심장 높이보다 올려주면(15~20도) 정맥 환류가 증진되어 하지부종 예방에 도움이 된다."}, {"num": 17, "q": "관상동맥 질환 환자에게 투여하는 니트로글리세린의 주된 작용은?", "choices": ["심박수 감소", "혈관 확장", "혈소판 응집 억제", "혈전 용해", "혈압 상승"], "ans": 2, "cat": "순환계", "exp": "니트로글리세린은 혈관 확장(특히 정맥 확장)을 통해 심장의 전부하와 후부하를 감소시켜 협심증 통증을 완화한다."}, {"num": 18, "q": "폐에서의 가스교환이 일어나는 가장 작은 단위는?", "choices": ["기관지", "세기관지", "폐포", "흉막", "폐엽"], "ans": 3, "cat": "호흡기계", "exp": "폐포(alveolus)는 가스교환의 기능적 단위로, 폐포 벽의 모세혈관과 O₂-CO₂ 교환이 이루어진다."}, {"num": 19, "q": "만성폐쇄성폐질환(COPD)에 해당하지 않는 것은?", "choices": ["만성기관지염", "폐기종", "천식", "기흉", "폐섬유화증"], "ans": 4, "cat": "호흡기계", "exp": "기흉은 흉막강에 공기가 차는 것으로 COPD가 아니다. COPD는 만성기관지염과 폐기종을 포함하며, 천식도 넓은 범주에 포함하기도 한다."}, {"num": 20, "q": "기관지 천식 발작 시 즉시 사용하는 약물은?", "choices": ["스테로이드 흡입제", "속효성 기관지 확장제(살부타몰)", "항생제", "항히스타민제", "이뇨제"], "ans": 2, "cat": "호흡기계", "exp": "살부타몰(albuterol) 같은 속효성 β₂ 자극제는 기관지 경련을 빠르게 완화하는 응급 흡입제이다."}, {"num": 21, "q": "폐렴 환자에게 가장 우선적으로 시행해야 할 간호는?", "choices": ["체위 변경", "기도 유지와 산소 공급", "수분 섭취 제한", "완전 안정", "항생제 자가투여 교육"], "ans": 2, "cat": "호흡기계", "exp": "폐렴 환자에서 기도 유지와 산소 공급이 최우선 간호이다."}, {"num": 22, "q": "결핵균의 전파 경로는?", "choices": ["접촉 전파", "비말핵(공기) 전파", "혈액 전파", "식품 전파", "매개체 전파"], "ans": 2, "cat": "호흡기계", "exp": "결핵균(Mycobacterium tuberculosis)은 비말핵(공기 전파)을 통해 전파되며, 기침·재채기 시 비말이 건조되어 공기 중에 수 시간 떠 있다."}, {"num": 23, "q": "폐결핵 환자의 격리 방법으로 옳은 것은?", "choices": ["일반 병실 격리", "음압 1인실 격리", "양압 격리", "역격리", "코호트 격리"], "ans": 2, "cat": "호흡기계", "exp": "결핵 환자는 음압 1인실(airborne precaution)에 격리하며, N95 마스크를 착용한다."}, {"num": 24, "q": "기흉(pneumothorax) 환자에게 나타나는 증상은?", "choices": ["양쪽 폐음 증가", "갑작스러운 흉통과 호흡곤란", "청색증과 부종", "객혈과 발열", "기침과 가래"], "ans": 2, "cat": "호흡기계", "exp": "기흉: 흉막강 내 공기 유입으로 폐 허탈. 증상: 갑작스러운 일측 흉통, 호흡곤란, 환측 호흡음 소실."}, {"num": 25, "q": "COPD 환자에게 고농도 산소를 투여하면 안 되는 이유는?", "choices": ["산소 중독 위험", "저산소 환기 자극 소실로 호흡 정지", "폐 손상", "혈압 상승", "심박수 감소"], "ans": 2, "cat": "호흡기계", "exp": "COPD 환자는 '저산소 호흡 자극(hypoxic drive)'에 의존해 호흡한다. 고농도 산소 투여 시 이 자극이 소실되어 호흡 억제가 발생할 수 있다."}, {"num": 26, "q": "폐암의 가장 큰 위험 요인은?", "choices": ["음주", "흡연", "비만", "스트레스", "운동 부족"], "ans": 2, "cat": "호흡기계", "exp": "폐암의 가장 큰 위험 요인은 흡연으로, 폐암 사망의 약 85%와 관련된다."}, {"num": 27, "q": "호흡기계 사정 시 정상적으로 들려야 하는 폐음은?", "choices": ["수포음(crackle)", "건성 수포음(ronchi)", "정상 폐포음", "흉막마찰음", "천명음(wheeze)"], "ans": 3, "cat": "호흡기계", "exp": "정상 폐포음(vesicular sound)은 폐 말초에서 부드럽고 낮은 음으로 들린다."}, {"num": 28, "q": "맥박산소측정기(pulse oximeter)가 측정하는 것은?", "choices": ["이산화탄소 농도", "산소포화도(SpO₂)", "혈중 pH", "혈압", "혈당"], "ans": 2, "cat": "호흡기계", "exp": "맥박산소측정기(pulse oximetry)는 손가락 끝에 적외선을 투과시켜 산소포화도(SpO₂)를 비침습적으로 측정한다."}, {"num": 29, "q": "흉부 물리치료의 목적으로 옳은 것은?", "choices": ["통증 감소", "분비물 배출 촉진", "호흡근 강화", "폐활량 증가", "혈압 조절"], "ans": 2, "cat": "호흡기계", "exp": "흉부 물리치료(타진, 진동, 체위 배액)는 기도 분비물 이동과 배출을 돕는다."}, {"num": 30, "q": "기관지 천식의 특징적인 호흡음은?", "choices": ["수포음", "정상 폐포음", "천명음(wheeze)", "흉막마찰음", "고음성 마찰음"], "ans": 3, "cat": "호흡기계", "exp": "천명음(wheezing)은 기관지 경련 또는 폐쇄로 기류가 좁은 관을 통과할 때 나는 고음의 호루라기 소리이다."}, {"num": 31, "q": "폐결핵의 주요 증상으로 묶인 것은?", "choices": ["발열, 오한, 심한 두통", "2주 이상 기침, 체중 감소, 야간 발한", "호흡곤란, 흉통, 혈압 상승", "구역질, 구토, 복통", "피로감, 부종, 기립성 저혈압"], "ans": 2, "cat": "호흡기계", "exp": "폐결핵: 2주 이상 지속 기침, 체중 감소, 야간 발한, 미열, 피로, 객혈이 특징이다."}, {"num": 32, "q": "만성기관지염의 정의로 옳은 것은?", "choices": ["1개월 이상 지속되는 기침", "1년에 3개월 이상, 2년 연속 객담을 동반한 기침", "반복적인 기관지 경련", "폐포의 과팽창", "흉막의 염증"], "ans": 2, "cat": "호흡기계", "exp": "만성기관지염 진단: 1년에 3개월 이상, 2년 연속 객담을 동반한 기침. WHO 정의이다."}, {"num": 33, "q": "흡기 시 가로막(횡격막)의 움직임으로 옳은 것은?", "choices": ["위로 올라간다", "아래로 내려간다", "움직이지 않는다", "좌우로 펼쳐진다", "앞으로 나온다"], "ans": 2, "cat": "호흡기계", "exp": "흡기 시 횡격막은 수축하여 아래로 내려가고, 흉강이 넓어져 폐가 팽창한다."}, {"num": 34, "q": "산소마스크를 적용할 때 주의사항으로 옳은 것은?", "choices": ["마스크를 느슨하게 착용한다", "코와 입을 완전히 덮도록 착용한다", "산소 유량은 항상 10L/min으로 고정한다", "수면 중에는 제거한다", "음식 섭취 시 제거하지 않아도 된다"], "ans": 2, "cat": "호흡기계", "exp": "산소마스크는 코와 입을 완전히 덮어야 산소 누출 없이 처방된 농도를 유지할 수 있다."}, {"num": 35, "q": "음식물이 위를 거쳐 소장으로 넘어가는 부위는?", "choices": ["분문부", "유문부", "십이지장", "공장", "회장"], "ans": 2, "cat": "소화기계", "exp": "유문부(pylorus)는 위의 출구로, 괄약근이 있어 음식물의 소장 이동을 조절한다."}, {"num": 36, "q": "간의 주요 기능이 아닌 것은?", "choices": ["담즙 생성", "혈당 조절", "혈액 응고 인자 생성", "인슐린 분비", "해독 작용"], "ans": 4, "cat": "소화기계", "exp": "인슐린은 췌장의 베타세포에서 분비된다. 간은 담즙 생성, 해독, 혈당 조절, 응고인자 생성 등을 담당한다."}, {"num": 37, "q": "간염 바이러스 중 혈액과 체액을 통해 전파되는 것은?", "choices": ["A형 간염", "B형 간염", "E형 간염", "A형과 E형", "D형 간염만"], "ans": 2, "cat": "소화기계", "exp": "B형, C형 간염은 혈액·체액·성접촉으로 전파된다. A형, E형은 오염된 물·음식(구강-분변 경로)으로 전파된다."}, {"num": 38, "q": "간경화 환자에게 나타나는 증상이 아닌 것은?", "choices": ["복수", "황달", "식도정맥류", "혈압 상승", "거미혈관종"], "ans": 4, "cat": "소화기계", "exp": "간경화 환자는 문맥압 항진으로 복수, 식도정맥류, 비장 비대가 발생하며 혈압 상승은 간경화의 증상이 아니다."}, {"num": 39, "q": "소화성 궤양(위궤양, 십이지장궤양)의 가장 흔한 원인균은?", "choices": ["대장균(E.coli)", "헬리코박터 파일로리균", "포도상구균", "연쇄상구균", "클로스트리디움"], "ans": 2, "cat": "소화기계", "exp": "헬리코박터 파일로리(H. pylori)는 소화성 궤양의 주요 원인균으로, 위 점막을 손상시킨다."}, {"num": 40, "q": "위궤양 환자의 통증이 주로 나타나는 시기는?", "choices": ["공복 시", "식후 30분~1시간", "야간 수면 중", "운동 직후", "아침 기상 시"], "ans": 2, "cat": "소화기계", "exp": "위궤양: 식후 30분~1시간 후 통증(음식이 궤양 자극). 십이지장궤양: 공복 및 야간 통증(식후 완화)."}, {"num": 41, "q": "크론병과 궤양성 대장염의 공통점은?", "choices": ["직장에만 발생한다", "염증성 장 질환이다", "수술로만 치료 가능하다", "바이러스 감염이 원인이다", "전층 염증이 특징이다"], "ans": 2, "cat": "소화기계", "exp": "크론병과 궤양성 대장염은 모두 만성 염증성 장 질환(IBD)으로, 면역 이상이 관여한다."}, {"num": 42, "q": "담낭염 환자에게 권장하는 식이는?", "choices": ["고지방, 고단백 식이", "저지방, 저콜레스테롤 식이", "고섬유질, 고탄수화물 식이", "고열량, 고단백 식이", "무제한 식이"], "ans": 2, "cat": "소화기계", "exp": "담낭염 환자는 지방 소화에 어려움이 있으므로 저지방, 저콜레스테롤 식이를 권장한다."}, {"num": 43, "q": "충수염(appendicitis)의 압통이 가장 심하게 나타나는 부위는?", "choices": ["우상복부", "좌상복부", "우하복부(맥버니점)", "좌하복부", "배꼽 주위"], "ans": 3, "cat": "소화기계", "exp": "맥버니점(McBurney's point): 우하복부, 배꼽과 우측 전상장골극(ASIS) 사이 1/3 지점. 충수염의 압통점이다."}, {"num": 44, "q": "장폐색 환자에게 나타나는 증상으로 옳은 것은?", "choices": ["혈성 설사", "복통, 구토, 배변·배기 중단", "체중 증가", "식욕 증가", "혈압 상승"], "ans": 2, "cat": "소화기계", "exp": "장폐색: 복통(산통), 구토, 복부 팽만, 배변 및 배기 중단이 특징이다."}, {"num": 45, "q": "췌장에서 분비하는 호르몬이 아닌 것은?", "choices": ["인슐린", "글루카곤", "소마토스타틴", "가스트린", "췌장 폴리펩타이드"], "ans": 4, "cat": "소화기계", "exp": "가스트린은 위의 G세포에서 분비되는 호르몬으로, 위산 분비를 촉진한다. 인슐린·글루카곤·소마토스타틴은 췌장에서 분비된다."}, {"num": 46, "q": "대장 내시경 검사 전 장 정결(bowel preparation)이 필요한 이유는?", "choices": ["통증 감소", "출혈 예방", "장 내용물을 제거하여 시야 확보", "감염 예방", "마취 준비"], "ans": 3, "cat": "소화기계", "exp": "대장 내시경 전 장 정결은 장 내용물을 제거하여 점막 시야를 확보하고 정확한 진단을 위해 필요하다."}, {"num": 47, "q": "황달(jaundice)이 발생할 때 나타나는 신체 변화가 아닌 것은?", "choices": ["공막(눈 흰자위) 황색 변화", "피부 황색 변화", "소변 갈색화", "혈압 상승", "가려움증"], "ans": 4, "cat": "소화기계", "exp": "황달 증상: 공막·피부 황색, 소변 갈색, 변 회색, 가려움증. 혈압 상승은 황달 증상이 아니다."}, {"num": 48, "q": "변비 환자에게 적합한 식이 교육 내용은?", "choices": ["수분 섭취 제한", "저섬유식이 섭취", "충분한 수분과 섬유질 섭취, 규칙적인 운동", "동물성 단백질 증가", "지방 섭취 증가"], "ans": 3, "cat": "소화기계", "exp": "변비 예방·치료: 하루 2L 이상 수분 섭취, 고섬유식이(채소·과일·전곡류), 규칙적인 운동, 규칙적인 배변 습관."}, {"num": 49, "q": "위장관 출혈 환자에게 나타나는 증상으로 짝지어진 것은?", "choices": ["혈압 상승, 서맥", "흑색 타르변, 혈압 저하, 빈맥", "고열, 림프절 종대", "체중 증가, 부종", "혈뇨, 단백뇨"], "ans": 2, "cat": "소화기계", "exp": "위장관 출혈: 흑색 타르변(상부위장관 출혈), 혈변, 혈압 저하, 빈맥, 어지러움이 나타난다."}, {"num": 50, "q": "복강경 수술 후 어깨 통증이 나타나는 원인은?", "choices": ["어깨 근육 손상", "수술 시 주입된 이산화탄소 가스의 횡격막 자극", "체위로 인한 신경 압박", "수혈 부작용", "마취 약물 부작용"], "ans": 2, "cat": "소화기계", "exp": "복강경 수술 시 수술 시야 확보를 위해 복강 내 이산화탄소를 주입하는데, 이것이 횡격막을 자극하여 어깨(특히 우측)에 방사통을 유발한다."}];
+const PASS_SCORE = 30;
+let studentName = '';
+let userAnswers = {};
+let submitted = false;
+
+function startQuiz() {
+  studentName = document.getElementById('student-name').value.trim() || '학생';
+  document.getElementById('student-label').textContent = studentName + '님';
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const main = document.getElementById('quiz-main');
+  main.innerHTML = '';
+  QUESTIONS.forEach((q, idx) => {
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.id = 'q-block-' + q.num;
+    const catClass = 'cat-' + q.cat;
+    block.innerHTML = `
+      <div class="q-num">문항 ${q.num}</div>
+      <span class="q-cat ${catClass}">${q.cat}</span>
+      <div class="q-text">${q.num}. ${q.q}</div>
+      <ul class="choice-list" id="choices-${q.num}">
+        ${q.choices.map((c, i) => `
+          <li class="choice-item">
+            <button class="choice-btn" onclick="selectAnswer(${q.num}, ${i+1}, this)">
+              ${i+1}. ${c}
+            </button>
+          </li>
+        `).join('')}
+      </ul>
+      <div class="q-exp" id="exp-${q.num}">${q.exp}</div>
+    `;
+    main.appendChild(block);
+  });
+}
+
+function selectAnswer(qNum, choice, btn) {
+  if (submitted) return;
+  userAnswers[qNum] = choice;
+  const btns = document.querySelectorAll('#choices-' + qNum + ' .choice-btn');
+  btns.forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateProgress();
+}
+
+function updateProgress() {
+  const count = Object.keys(userAnswers).length;
+  document.getElementById('ans-count').textContent = count;
+  document.getElementById('progress-text').textContent = count + ' / 50';
+  document.getElementById('progress-fill').style.width = (count / 50 * 100) + '%';
+  document.getElementById('submit-btn').disabled = count < 50;
+}
+
+function submitQuiz() {
+  if (Object.keys(userAnswers).length < 50) {
+    alert('모든 문항에 답안을 입력해주세요.');
+    return;
+  }
+  if (!confirm('채점하시겠습니까?')) return;
+  submitted = true;
+
+  let score = 0;
+  const catCorrect = {순환계:0, 호흡기계:0, 소화기계:0};
+  const catTotal = {순환계:0, 호흡기계:0, 소화기계:0};
+  const wrongList = [];
+
+  QUESTIONS.forEach(q => {
+    catTotal[q.cat] = (catTotal[q.cat] || 0) + 1;
+    const myAns = userAnswers[q.num];
+    const correct = myAns === q.ans;
+    if (correct) {
+      score++;
+      catCorrect[q.cat] = (catCorrect[q.cat] || 0) + 1;
+    } else {
+      wrongList.push({...q, myAns});
+    }
+
+    const btns = document.querySelectorAll('#choices-' + q.num + ' .choice-btn');
+    btns.forEach((b, i) => {
+      const num = i + 1;
+      if (num === q.ans) b.classList.add('show-correct');
+      if (num === myAns && !correct) b.classList.add('wrong');
+    });
+    const expEl = document.getElementById('exp-' + q.num);
+    if (expEl) expEl.classList.add('show');
+  });
+
+  // 결과 화면
+  document.getElementById('quiz-screen').style.display = 'none';
+  const rs = document.getElementById('result-screen');
+  rs.style.display = 'block';
+  document.getElementById('result-name').textContent = studentName + '님의 결과';
+  document.getElementById('result-score').textContent = score;
+
+  // 합격/불합격 메시지
+  const msgBox = document.getElementById('result-msg-box');
+  const pass = score >= PASS_SCORE;
+  msgBox.className = 'result-msg-box ' + (pass ? 'pass' : 'fail');
+
+  let icon, title, sub;
+  if (score === 50) {
+    icon = '🏆'; title = '완벽한 성적!';
+    sub = '50문항 모두 정답이에요!<br>정기고사에서도 최고 점수를 기대합니다. 정말 훌륭해요! ✨';
+  } else if (score >= 45) {
+    icon = '🌟'; title = '아주 우수한 성적!';
+    sub = `합격 기준(${PASS_SCORE}개)을 훨씬 넘었어요!<br>정기고사 준비가 충분합니다. 이 컨디션 유지해요! 👍`;
+  } else if (score >= 40) {
+    icon = '😊'; title = '좋은 성적입니다!';
+    sub = `합격 기준(${PASS_SCORE}개)을 넘었어요!<br>틀린 문제를 한 번 더 복습하면 정기고사 준비 완료! 📚`;
+  } else if (pass) {
+    icon = '✅'; title = '합격!';
+    sub = `${score}개 정답으로 합격 기준(${PASS_SCORE}개)을 달성했어요!<br>틀린 ${50-score}문제를 집중 복습하면 더 좋은 결과를 얻을 수 있어요. 💪`;
+  } else if (score >= 25) {
+    icon = '📖'; title = '조금 더 노력이 필요해요';
+    sub = `합격까지 ${PASS_SCORE - score}문항 부족해요.<br>오답 문제를 중심으로 복습하고 다시 도전해보세요! 할 수 있어요 💪`;
+  } else if (score >= 20) {
+    icon = '😅'; title = '더 열심히 복습해요!';
+    sub = `합격 기준(${PASS_SCORE}개)에 아직 ${PASS_SCORE - score}문항이 부족합니다.<br>세 단원의 핵심 내용을 다시 꼼꼼히 정리해봐요. 포기하지 마세요! 🔥`;
+  } else {
+    icon = '💪'; title = '기초부터 다시 도전!';
+    sub = `많이 어려웠나요? 걱정하지 마세요.<br>자율학습 자료를 처음부터 차근차근 읽고 다시 시도해봐요.<br>반복이 실력이 됩니다! 📝`;
+  }
+
+  document.getElementById('msg-icon').textContent = icon;
+  document.getElementById('msg-title').textContent = title;
+  document.getElementById('msg-sub').innerHTML = sub;
+
+  // 단원별 점수
+  const catHtml = Object.keys(catTotal).map(cat => `
+    <div class="cat-score-item ${cat}">
+      <div class="cs-num">${catCorrect[cat]||0}/${catTotal[cat]}</div>
+      <div class="cs-label">${cat}</div>
+    </div>
+  `).join('');
+  document.getElementById('cat-scores').innerHTML = catHtml;
+
+  // 오답 목록
+  let wrongHtml = '';
+  if (wrongList.length > 0) {
+    wrongHtml = `<div class="wrong-list-title">❌ 오답 목록 (${wrongList.length}문항)</div>`;
+    wrongList.forEach(q => {
+      wrongHtml += `
+        <div class="wrong-item">
+          <div class="wi-num">문항 ${q.num} · ${q.cat}</div>
+          <div class="wi-q">${q.q}</div>
+          <div class="wi-my">내 답: ${q.myAns}번. ${q.choices[q.myAns-1]}</div>
+          <div class="wi-ans">정답: ${q.ans}번. ${q.choices[q.ans-1]}</div>
+          ${q.exp ? `<div class="wi-exp">💡 ${q.exp}</div>` : ''}
+        </div>
+      `;
+    });
+  } else {
+    wrongHtml = `<div style="text-align:center;padding:20px;color:#059669;font-weight:700">🎉 오답이 없습니다!</div>`;
+  }
+  document.getElementById('wrong-section').innerHTML = wrongHtml;
+  window.scrollTo(0, 0);
+}
+
+function retryQuiz() {
+  userAnswers = {};
+  submitted = false;
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuiz();
+  updateProgress();
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
