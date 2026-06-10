@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>2026 보건간호과 온라인 모의고사</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:#f0f4f8;color:#1a1a1a;word-break:keep-all}
+.hero{background:linear-gradient(135deg,#FF69B4,#FF91A4);color:#fff;padding:40px 20px;text-align:center}
+.hero h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hero p{font-size:14px;opacity:.9;line-height:1.8}
+.container{max-width:860px;margin:0 auto;padding:24px 16px}
+.cheer-box{background:#fff;border-radius:16px;padding:24px;margin-bottom:24px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.cheer-box .cheer-icon{font-size:36px;margin-bottom:10px}
+.cheer-box .cheer-text{font-size:15px;font-weight:700;color:#FF69B4;margin-bottom:6px}
+.cheer-box .cheer-sub{font-size:13px;color:#777;line-height:1.8}
+.grade-section{margin-bottom:32px}
+.section-title{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #FF69B4}
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.quiz-card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.07);transition:.2s;border:2px solid transparent}
+.quiz-card:hover{border-color:#FF69B4;transform:translateY(-2px);box-shadow:0 4px 16px rgba(255,105,180,.15)}
+.card-badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:10px;margin-bottom:10px;font-weight:500}
+.badge-3{background:#fce7f3;color:#9d174d}
+.badge-2{background:#e8fff5;color:#0f6e56}
+.quiz-card h3{font-size:15px;font-weight:700;margin-bottom:6px;line-height:1.5}
+.card-meta{font-size:12px;color:#888;margin-bottom:12px}
+.card-info{display:flex;gap:16px;margin-bottom:14px}
+.ci{text-align:center}
+.ci-num{font-size:18px;font-weight:700;color:#FF69B4}
+.ci-label{font-size:10px;color:#999}
+.start-link{display:block;padding:10px;text-align:center;background:#FF69B4;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;transition:.15s}
+.start-link:hover{background:#e05a9a}
+.loading{text-align:center;padding:40px;color:#aaa;font-size:14px}
+.empty{text-align:center;padding:20px;color:#aaa;font-size:13px;background:#fff;border-radius:12px}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div style="font-size:44px;margin-bottom:12px">🏥</div>
+  <h1>2026 보건간호과 온라인 모의고사</h1>
+  <p>김해한일여자고등학교 보건간호과<br>열심히 공부하는 여러분을 응원합니다! 💕</p>
+</div>
+<div class="container">
+
+  <div class="cheer-box">
+    <div class="cheer-icon">✨</div>
+    <div class="cheer-text">여러분은 충분히 잘 하고 있어요!</div>
+    <div class="cheer-sub">
+      문제를 풀고 모르는 부분을 확인하는 것이 실력 향상의 지름길입니다 📖<br>
+      틀려도 괜찮아요. 복습하고 다시 도전하면 됩니다! 우리 함께 합격을 향해 나아가요 🌸
+    </div>
+  </div>
+
+  <div class="grade-section">
+    <div class="section-title">🎓 3학년 · 국가고시 대비</div>
+    <div class="quiz-grid" id="grid-3g">
+      <div class="loading">불러오는 중... ⏳</div>
+    </div>
+  </div>
+
+  <div class="grade-section">
+    <div class="section-title">📚 2학년 · 정기고사 대비</div>
+    <div class="quiz-grid" id="grid-2g">
+      <div class="loading">불러오는 중... ⏳</div>
+    </div>
+  </div>
+
+</div>
+<script>
+const REPO = "haha1590/2026quiz";
+const BRANCH = "main";
+
+// quiz_3g_1st_1.html / quiz_2g_2nd_1.html 형식 파싱
+function parseFileName(filename) {
+  const match = filename.match(/^quiz_(2g|3g)_(1st|2nd|3rd|4th|5th|6th)_(\d+)\.html$/);
+  if (!match) return null;
+
+  const [, grade, exam, set] = match;
+
+  const examLabel = {
+    "1st":"1차","2nd":"2차","3rd":"3차","4th":"4차","5th":"5차","6th":"6차"
+  };
+  const grade3Topics = {
+    "1st":"근골격계 · 순환계통 · 호흡계통",
+    "2nd":"소화기계 · 비뇨기계 · 내분비계",
+    "3rd":"신경계 · 감각기계 · 정신건강",
+  };
+  const grade2Topics = {
+    "1st":"근골격계 · 순환계1",
+    "2nd":"순환계2 · 호흡기계 · 소화기계",
+    "3rd":"비뇨기계 · 내분비계 · 신경계",
+  };
+
+  const is3g = grade === "3g";
+  const examName = examLabel[exam] || exam;
+
+  return {
+    grade,
+    title: is3g
+      ? `모의고사 ${examName}회 — ${set}번 세트`
+      : `${examName}차 정기고사 — ${set}번 세트`,
+    meta: is3g
+      ? (grade3Topics[exam] || "국시 대비")
+      : (grade2Topics[exam] || "정기고사 대비"),
+    questions: is3g ? "100" : "50",
+    pass: is3g ? "60" : "30",
+    badgeText: is3g ? `3학년 · 국시대비 ${examName}회` : `2학년 · ${examName}차 정기고사`,
+    badgeClass: is3g ? "badge-3" : "badge-2",
+  };
+}
+
+function createCard(filename, info) {
+  return `
+    <div class="quiz-card">
+      <span class="card-badge ${info.badgeClass}">${info.badgeText}</span>
+      <h3>${info.title}</h3>
+      <div class="card-meta">${info.meta}</div>
+      <div class="card-info">
+        <div class="ci"><div class="ci-num">${info.questions}</div><div class="ci-label">문항</div></div>
+        <div class="ci"><div class="ci-num">${info.pass}</div><div class="ci-label">합격기준</div></div>
+        <div class="ci"><div class="ci-num">5지</div><div class="ci-label">선다형</div></div>
+      </div>
+      <a class="start-link" href="${filename}">시험 시작 →</a>
+    </div>
+  `;
+}
+
+async function loadQuizList() {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`
+    );
+    const data = await res.json();
+    const files = (data.tree || [])
+      .map(f => f.path)
+      .filter(p => p.match(/^quiz_(2g|3g)_(1st|2nd|3rd|4th|5th|6th)_\d+\.html$/))
+      .sort();
+
+    const cards3g = [], cards2g = [];
+    files.forEach(filename => {
+      const info = parseFileName(filename);
+      if (!info) return;
+      const card = createCard(filename, info);
+      if (info.grade === "3g") cards3g.push(card);
+      else cards2g.push(card);
+    });
+
+    document.getElementById("grid-3g").innerHTML =
+      cards3g.length ? cards3g.join("") : '<div class="empty">곧 업로드될 예정이에요! 조금만 기다려주세요 😊</div>';
+    document.getElementById("grid-2g").innerHTML =
+      cards2g.length ? cards2g.join("") : '<div class="empty">곧 업로드될 예정이에요! 조금만 기다려주세요 😊</div>';
+
+  } catch(e) {
+    document.getElementById("grid-3g").innerHTML = '<div class="empty">잠시 후 새로고침 해주세요 🙏</div>';
+    document.getElementById("grid-2g").innerHTML = '<div class="empty">잠시 후 새로고침 해주세요 🙏</div>';
+  }
+}
+loadQuizList();
+</script>
+</body>
+</html>
