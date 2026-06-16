@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>간호조무사 국시대비 100문항 온라인 퀴즈</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color:#FFF0F5; --main-color:#FFB6C1; --accent-color:#87CEFA; --text-color:#333333; }
+        body { font-family:'Nanum Gothic',sans-serif; background-color:var(--bg-color); color:var(--text-color); margin:0; padding:0; word-break:keep-all; }
+        #quiz-body { padding:20px 12px; display:flex; flex-direction:column; align-items:center; }
+        h1 { font-family:'Gaegu',cursive; font-size:2.4rem; color:#FF69B4; margin-bottom:5px; text-align:center; text-shadow:1px 1px 2px #fff; }
+        .subtitle { font-family:'Gaegu',cursive; font-size:1.25rem; color:#778899; margin-bottom:25px; text-align:center; }
+        .info-box { width:100%; max-width:700px; background:#fff; border:2px dashed var(--main-color); border-radius:15px; padding:15px 20px; margin-bottom:25px; font-size:0.95rem; line-height:1.7; box-sizing:border-box; }
+        .info-box strong { color:#FF69B4; }
+        .section-title { font-family:'Gaegu',cursive; font-size:1.7rem; color:#fff; background:linear-gradient(135deg,var(--main-color),#FF91A4); padding:8px 20px; border-radius:20px; margin:20px 0 15px 0; display:inline-block; }
+        .q-block { width:100%; max-width:700px; background:#fff; border-radius:16px; padding:20px; margin-bottom:16px; box-shadow:0 6px 12px rgba(255,182,193,0.15); box-sizing:border-box; }
+        .cat-badge { display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; margin-bottom:8px; }
+        .cat-근골격계 { background:#fee2e2; color:#991b1b; }
+        .cat-순환계통 { background:#dbeafe; color:#1e40af; }
+        .cat-호흡계통 { background:#d1fae5; color:#065f46; }
+        .q-num { font-size:0.95rem; font-weight:bold; color:#FF69B4; margin-bottom:6px; }
+        .q-text { font-size:1.05rem; font-weight:bold; line-height:1.6; margin-bottom:15px; }
+        .q-choices { list-style:none; padding:0; margin:0; }
+        .choice-item { margin-bottom:8px; }
+        .choice-item input[type="radio"] { display:none; }
+        .choice-label { display:block; padding:12px 15px; background-color:#FAFAFA; border:2px solid #EFEFEF; border-radius:12px; cursor:pointer; font-size:0.95rem; line-height:1.5; transition:all 0.2s ease; }
+        .choice-label:hover { background-color:#FFF5F7; border-color:var(--main-color); }
+        .choice-item input[type="radio"]:checked + .choice-label { background-color:#E6F7FF; border-color:var(--accent-color); font-weight:bold; }
+        .btn-submit { display:block; width:100%; max-width:700px; background:linear-gradient(135deg,#FF69B4,#FF91A4); color:white; border:none; padding:16px; font-size:1.4rem; font-family:'Gaegu',cursive; font-weight:bold; border-radius:15px; cursor:pointer; margin:30px 0 5px 0; }
+        .result-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:10000; padding:10px; box-sizing:border-box; }
+        .result-content { background:white; padding:25px; border-radius:20px; text-align:center; max-width:450px; width:100%; max-height:85vh; overflow-y:auto; }
+        .result-score { font-family:'Gaegu',cursive; font-size:3.5rem; color:#FF69B4; margin:10px 0; }
+        .analysis-box { background-color:#F0F8FF; padding:15px; border-radius:12px; text-align:left; font-size:0.95rem; margin-bottom:20px; line-height:1.7; }
+        .btn-close { background-color:var(--accent-color); color:white; border:none; padding:12px 30px; border-radius:10px; cursor:pointer; font-weight:bold; font-size:1rem; }
+        .submit-section { background:#FFF5F7; border:2px dashed #FFB6C1; border-radius:14px; padding:16px; margin-bottom:16px; }
+        .submit-section p { font-size:0.9rem; color:#777; margin-bottom:10px; }
+        .submit-row { display:flex; gap:8px; margin-bottom:8px; }
+        .submit-select { flex:1; padding:10px 12px; border:2px solid #EFEFEF; border-radius:10px; font-size:0.9rem; font-family:inherit; background:#fff; }
+        .submit-input { flex:2; padding:10px 12px; border:2px solid #EFEFEF; border-radius:10px; font-size:0.9rem; font-family:inherit; }
+        .submit-select:focus, .submit-input:focus { border-color:#FFB6C1; outline:none; }
+        .btn-send { width:100%; padding:11px; background:linear-gradient(135deg,#FF69B4,#FF91A4); color:white; border:none; border-radius:10px; font-size:1rem; font-family:'Gaegu',cursive; font-weight:bold; cursor:pointer; }
+        .btn-send:disabled { background:#ccc; cursor:not-allowed; }
+        .send-result { font-size:0.85rem; margin-top:8px; text-align:center; min-height:20px; }
+        /* ── 진행 바 ── */
+        #progress-bar-wrap{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #FFB6C1;padding:8px 16px;display:none;}
+        #progress-bar-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;gap:10px;}
+        #progress-label{font-size:13px;color:#FF69B4;font-weight:700;white-space:nowrap;}
+        #progress-bg{flex:1;height:8px;background:#EFEFEF;border-radius:4px;overflow:hidden;}
+        #progress-fill3{height:8px;background:linear-gradient(90deg,#FF69B4,#FF91A4);border-radius:4px;width:0%;transition:width .3s;}
+        #progress-count{font-size:13px;font-weight:700;color:#FF69B4;white-space:nowrap;}
+
+        .q-result-tag { display:inline-block; font-size:13px; font-weight:bold; padding:3px 10px; border-radius:8px; margin-left:8px; }
+        .q-result-tag.ok { background:#dcfce7; color:#15803d; }
+        .q-result-tag.no { background:#fee2e2; color:#b91c1c; }
+        .q-explain { margin-top:12px; padding:12px 14px; background:#f8fafc; border-left:4px solid #FF91A4; border-radius:8px; font-size:14px; color:#444; line-height:1.6; }
+        .q-explain .ans-line { font-weight:bold; color:#0f6e56; margin-bottom:5px; }
+        .choice-label.correct-ans { background:#dcfce7; border-radius:8px; font-weight:bold; }
+        .choice-label.wrong-pick { background:#fee2e2; border-radius:8px; text-decoration:line-through; }
+        .dl-section { width:100%; max-width:700px; display:flex; gap:10px; margin:20px 0; }
+        .dl-btn { flex:1; padding:13px; border:2px solid #FF69B4; background:#fff; color:#FF69B4; border-radius:12px; font-size:14px; font-weight:bold; font-family:inherit; cursor:pointer; }
+        .dl-btn:hover { background:#FF69B4; color:#fff; }
+        .q-block.unanswered { border:2px solid #fca5a5 !important; background:#fff8f8 !important; }
+        .unanswered-warning { color:#dc2626; font-size:0.85rem; font-weight:bold; margin-top:8px; padding:6px 10px; background:#fee2e2; border-radius:8px; }
+        .modal-select { width:100%; padding:10px 12px; border:2px solid #EFEFEF; border-radius:10px; font-size:0.9rem; font-family:inherit; background:#fff; margin-bottom:8px; }
+        .modal-select:focus { border-color:#FFB6C1; outline:none; }
+        #name-confirm-modal { display:none; background:#FFF0F5; border:1px solid #FFB6C1; border-radius:10px; padding:8px 12px; margin-bottom:8px; font-size:13px; color:#FF69B4; font-weight:700; text-align:center; }
+        /* ── 시작화면 ── */
+        #start-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#FF69B4,#FFB6C1); }
+        .start-box { background:#fff; border-radius:20px; padding:36px 30px; max-width:460px; width:90%; text-align:center; box-shadow:0 8px 40px rgba(255,105,180,0.25); }
+        .start-box h1 { font-family:'Gaegu',cursive; font-size:22px; font-weight:700; color:#FF69B4; margin-bottom:4px; }
+        .start-box h2 { font-size:15px; font-weight:500; color:#888; margin-bottom:20px; }
+        .start-info-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:18px; }
+        .start-info-card { background:#FFF0F5; border-radius:10px; padding:12px 8px; text-align:center; }
+        .start-info-card .snum { font-size:22px; font-weight:700; color:#FF69B4; }
+        .start-info-card .slabel { font-size:11px; color:#999; margin-top:2px; }
+        .start-pass { background:#FFF0F5; border:1px solid #FFB6C1; border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:13px; color:#FF69B4; font-weight:700; }
+        .start-select { width:100%; padding:11px 14px; border:2px solid #EFEFEF; border-radius:10px; font-size:14px; font-family:inherit; margin-bottom:10px; background:#fff; color:#333; transition:.2s; }
+        .start-select:focus { border-color:#FFB6C1; outline:none; }
+        .start-name-confirm { display:none; background:#FFF0F5; border:1px solid #FFB6C1; border-radius:10px; padding:9px 14px; margin-bottom:12px; font-size:13px; color:#FF69B4; font-weight:700; }
+        .start-btn { width:100%; padding:14px; background:linear-gradient(135deg,#FF69B4,#FF91A4); color:#fff; border:none; border-radius:12px; font-size:16px; font-family:'Gaegu',cursive; font-weight:700; cursor:pointer; transition:.2s; }
+        .start-btn:disabled { background:#ddd; cursor:not-allowed; color:#aaa; }
+        .start-btn:not(:disabled):hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(255,105,180,0.3); }
+    </style>
+</head>
+<body>
+
+<!-- ── 시작 화면 ── -->
+<div id="start-screen">
+  <div class="start-box">
+    <div style="font-size:38px;margin-bottom:10px">📝</div>
+    <h1>간호조무사 국시대비 100문제</h1>
+    <h2>보건간호과 자율학습용 온라인 퀴즈</h2>
+    <div class="start-info-grid">
+      <div class="start-info-card"><div class="snum">100</div><div class="slabel">문항</div></div>
+      <div class="start-info-card"><div class="snum">5지</div><div class="slabel">선다형</div></div>
+      <div class="start-info-card"><div class="snum">즉시</div><div class="slabel">채점</div></div>
+    </div>
+    <div class="start-pass">🎯 합격 기준: 60점 이상 (60문항 이상 정답)</div>
+    <select class="start-select" id="startClassSelect" onchange="updateStartRoster()">
+      <option value="">① 반 선택</option>
+      <option value="3학년 7반">3학년 7반</option>
+      <option value="3학년 8반">3학년 8반</option>
+    </select>
+    <select class="start-select" id="startStudentSelect" onchange="confirmStartName()" disabled>
+      <option value="">② 번호 선택</option>
+    </select>
+    <div class="start-name-confirm" id="start-name-confirm"></div>
+    <input class="start-select" id="access-code" type="text" inputmode="numeric" placeholder="③ 선생님이 알려준 접속 코드" style="text-align:center;letter-spacing:2px" oninput="checkCode()" disabled>
+    <div id="code-msg" style="display:none;font-size:13px;margin:8px 0;text-align:center;font-weight:700"></div>
+    <button class="start-btn" id="start-btn" onclick="startExam()" disabled>시험 시작하기 →</button>
+  </div>
+</div>
+
+<!-- ── 퀴즈 화면 ── -->
+<div id="quiz-body" style="display:none">
+<!-- ── 진행 바 ── -->
+<div id="progress-bar-wrap">
+  <div id="progress-bar-inner">
+    <span id="progress-label">진행</span>
+    <div id="progress-bg"><div id="progress-fill3"></div></div>
+    <span id="progress-count">0 / 100</span>
+  </div>
+</div>
+    <h1>간호조무사 모의고사 100문제 📝</h1>
+    <div class="subtitle" id="quiz-subtitle">보건간호과 자율학습용 온라인 퀴즈</div>
+    <div class="info-box">
+        <strong>💡 시험 안내</strong><br>
+        · 구성: 근골격계(1~35번) / 순환계통(36~70번) / 호흡계통(71~100번)<br>
+        · 합격 기준: <strong>60점 이상</strong> (60문항 이상 정답)<br>
+        · 모든 문제를 풀고 하단 버튼을 누르면 영역별 결과가 즉시 공개됩니다!
+    </div>
+    <form id="quizForm">
+        <div id="quizContainer"></div>
+        <button type="button" class="btn-submit" onclick="gradeExam()">제출하고 내 점수 실시간 확인하기 📑</button>
+    </form>
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <h2>🎉 채점 완료! 🎉</h2>
+            <div class="result-score" id="scoreDisplay">0점 / 100점</div>
+            <div class="analysis-box">
+                <strong>📊 영역별 성적 분석:</strong><br>
+                • 🦴 근골격계: <span id="score1">0</span> / 35 문항<br>
+                • ❤️ 순환계통: <span id="score2">0</span> / 35 문항<br>
+                • 🫁 호흡계통: <span id="score3">0</span> / 30 문항
+            </div>
+            <div id="commentDisplay" style="font-weight:bold;color:#555;margin-bottom:16px;padding:0 10px;"></div>
+            <div class="submit-section">
+              <div id="name-confirm-modal" style="display:block">✅ <span id="submit-who"></span></div>
+              <div class="send-result" id="sendResult" style="font-size:0.95rem;font-weight:bold;">제출 중...</div>
+            </div>
+            <button class="btn-close" onclick="closeModal()">닫기</button>
+        </div>
+    </div>
+</div><!-- /#quiz-body -->
+    <script>
+        const questionsData = [
+            {n:1,c:"근골격계",q:"골수강 안에 있으며 혈액을 만드는 조혈 작용을 하는 것은?",a:["골단선","골막","치밀질","적색골수","황색골수"]},
+            {n:2,c:"근골격계",q:"인체의 뼈 총 개수로 옳은 것은?",a:["168개","186개","196개","206개","216개"]},
+            {n:3,c:"근골격계",q:"골격근의 특성으로 옳은 것은?",a:["불수의근이다","민무늬근이다","심장을 이루는 근육이다","뇌·척수신경의 지배를 받는 수의근이다","자율신경계의 조절을 받는다"]},
+            {n:4,c:"근골격계",q:"건(힘줄)에 대한 설명으로 옳은 것은?",a:["뼈와 뼈를 연결하는 섬유성 결합조직이다","관절을 덮어 충격을 완충하는 역할을 한다","근육과 뼈를 연결하는 섬유성 띠로 골막에 근육을 부착시킨다","관절공간 활막으로 쌓여 활액을 생성한다","외부 강한 힘에 의해 골절이 일어나는 구조물이다"]},
+            {n:5,c:"근골격계",q:"골절의 PRICE 응급 처치법에서 'I'에 해당하는 것은?",a:["입원(Inpatient)","주사(Injection)","냉찜질(Ice)","고정(Immobilization)","검사(Investigation)"]},
+            {n:6,c:"근골격계",q:"골절의 회복과정을 순서대로 올바르게 나열한 것은?",a:["골아세포증식→혈종형성→가골형성→골화 및 재형성","혈종형성→가골형성→골아세포증식→골화 및 재형성","혈종형성→골아세포증식→가골형성→골화 및 재형성","가골형성→혈종형성→골아세포증식→골화 및 재형성","골화 및 재형성→혈종형성→골아세포증식→가골형성"]},
+            {n:7,c:"근골격계",q:"종아리나 전박 등 굵기가 고르지 못한 부위에 적용하는 봉대법은?",a:["환행대","나선대","나선절전대(절전대)","8자감기","사행대"]},
+            {n:8,c:"근골격계",q:"척추측만증에 대한 설명으로 옳은 것은?",a:["추간판 중심의 수핵이 뛰어나와 척수신경을 압박하는 것이다","갱년기 여성의 혈청 에스트로겐이 감소할 때 골밀도가 급속히 감소한다","기능적 요인으로는 불량한 자세나 다리 길이의 차이 등으로 나타난다","만곡이 50° 이내인 경우 폐 용적이 줄어들어 호흡곤란이 나타난다","만곡이 50° 이상인 경우 보존적 요법을 적용한다"]},
+            {n:9,c:"근골격계",q:"추간판탈출증 진단을 위한 하지직거상검사(SLR test)의 양성 기준은?",a:["다리를 올릴 때 10~30° 미만에서 통증 발생","다리를 올릴 때 30~70° 미만에서 통증·허약감 발생","다리를 올릴 때 70~90° 미만에서 통증 발생","측위에서 다리를 올릴 때 30° 미만에서 통증 발생","복위에서 다리를 올릴 때 45° 미만에서 통증 발생"]},
+            {n:10,c:"근골격계",q:"골다공증에 대한 설명으로 옳은 것은?",a:["기상 후 아침 강직이 1시간 이상 지속된다","에스트로겐 감소 시 골밀도가 급속히 감소한다","운동 시 관절 마찰음이 느껴진다","관상동맥에 문제가 생기면 발생한다","Heberden 결절, Bouchard 결절이 나타난다"]},
+            {n:11,c:"근골격계",q:"골관절염의 특징에 해당하는 것은?",a:["자가면역질환이다","25~50세에 호발한다","손목·무릎·중수지 관절이 대칭적으로 침범된다","강직은 30분 이내 완화된다","류머티즘 인자(RF) 검사에서 80%가 양성이다"]},
+            {n:12,c:"근골격계",q:"류머티즘 관절염(RA)의 증상으로 옳은 것은?",a:["손가락 원위지 관절에 Heberden 결절이 나타난다","기상 후 아침 강직이 30분 이내로 완화된다","퇴행성 변화로 발생하는 만성·비염증성 질환이다","손가락에 척골 일탈, 백조 목(Swan neck) 기형이 나타난다","체중을 지탱하는 무릎·엉덩이 관절에 주로 발생한다"]},
+            {n:13,c:"근골격계",q:"류머티즘 관절염(RA) 진단 기준 중 해당하는 것은?",a:["조조강직이 30분 이내 완화","한 군데 관절에서만 부종 발생","RF(Rheumatic factor) 검사에서 양성","손가락 원위지 관절의 Heberden 결절","연골 퇴행성 변화"]},
+            {n:14,c:"근골격계",q:"손목 수근 터널 증후군(CTS) Phalen 검사 양성 소견은?",a:["손목을 90° 구부려 양 손등을 마주친 채 60초 있을 때 무감각·저림이 나타난다","수근터널 정중신경을 가볍게 타진하면 3개 반 손가락에 저린감이 보인다","양와위 누워 무릎 편 채 다리를 30~70° 미만에서 통증·허약감 발생","척추 X선상 10° 이상의 만곡이 있을 때","주사한 부위가 10mm보다 크면 양성"]},
+            {n:15,c:"근골격계",q:"석고봉대 증후군(급성 구획증후군)에 대한 설명으로 옳은 것은?",a:["조직 내 압이 10mmHg 초과 시 즉시 봉대·김스를 제거한다","조직 내 압이 30mmHg 초과 시 즉시 봉대·김스를 제거하고 필요시 근막절개술 시행","조직 내 압이 50mmHg 초과 시 즉시 봉대·김스를 제거한다","골절 부위가 피부 표면으로 노출되는 형태의 골절이다","폐쇄성 골절에서만 발생한다"]},
+            {n:16,c:"근골격계",q:"Strain(좌상)에 대한 설명으로 옳은 것은?",a:["강렬한 움직임에 의해 인대가 과도하게 늘어나거나 파열된 것이다","과도한 사용·반복적 움직임·갑작스러운 힘에 의해 근육 또는 건(힘줄)이 파열된 것이다","뼈에 금이 가거나 부러진 상태이다","관절공간이 좁아지며 뼈가 증식하는 것이다","추간판 중심의 수핵이 탈출하여 척수신경을 압박하는 것이다"]},
+            {n:17,c:"근골격계",q:"냉찜질에 대한 설명으로 옳은 것은?",a:["냉찜질은 부상 발생 2~3일 후에 시행한다","온찜질은 부상 발생 즉시 시행하여 출혈과 부종을 감소시킨다","냉찜질은 부상 발생 후 2일 이내에 시행하여 혈관을 수축시키고 출혈·부종을 줄인다","만성 통증(관절염 등)에는 냉찜질을 적용한다","온찜질은 혈관을 수축하여 출혈을 막는다"]},
+            {n:18,c:"근골격계",q:"목발 사용에 대한 설명으로 옳은 것은?",a:["겨드랑이에 체중을 싣는다","팔 관절을 60° 굴곡하여 목발을 잡는다","액와신경 손상 예방을 위해 겨드랑이가 아닌 손과 손목에 체중을 싣는다","목발의 길이는 신장에서 5cm 뺀 길이를 선택한다","목발로 체중의 50%만 지지할 수 있다"]},
+            {n:19,c:"근골격계",q:"봉대 감기 중 환행대에 대한 설명으로 옳은 것은?",a:["굵기가 고르지 못한 부위에 사용한다","손목·발목 등 관절 부위에 8자 모양으로 감는다","동일 부위를 수차례 돌려 감으며 모든 봉대의 시작과 끝에 사용한다","신체 굵기가 비슷한 부위에 1/2~1/3 겹치며 감는다","종아리나 전박에 엇갈려 감는다"]},
+            {n:20,c:"근골격계",q:"골절 환자에게 부목을 적용할 때 주의사항으로 옳은 것은?",a:["부목은 환부의 뼈 길이보다 짧은 것을 선택한다","부목 적용 후 말단(손·발가락)을 붕대로 감아 완전히 고정한다","부목은 환부의 뼈 길이보다 긴 것을 선택하고 말단 부위를 노출하여 순환·신경을 확인한다","부목 적용 시 패드는 사용하지 않는다","부목은 반드시 병원 도착 후에 적용한다"]},
+            {n:21,c:"근골격계",q:"추간판탈출증(HNP) 환자의 간호 체위로 적절한 것은?",a:["앙와위로 하지를 완전히 신전한 자세","반좌위 상태에서 무릎을 굴곡하는 자세","복위로 전신을 평평하게 유지하는 자세","잭나이프 자세","트렌델렌버그 자세"]},
+            {n:22,c:"근골격계",q:"척추측만증의 간호에 대한 설명으로 옳은 것은?",a:["만곡이 50° 이내인 경우 외과적 치료를 적용한다","만곡이 50° 이상인 경우 보존적 요법(운동·체중감소·보조기)을 적용한다","만곡이 50° 이상인 경우 손상된 척추 사이에 기구를 삽입하는 외과적 치료를 적용한다","X선 검사상 5° 이상의 만곡이 있을 때 진단한다","척추측만증은 인구의 약 10%에서 나타난다"]},
+            {n:23,c:"근골격계",q:"활막 관절 내의 결합조직의 염증성 변화가 나타나며 기형이 생기는 자가면역성 질환은?",a:["골관절염","류머티즘 관절염","골다공증","추간판탈출증","척추측만증"]},
+            {n:24,c:"근골격계",q:"골관절염과 류머티즘 관절염의 차이점으로 옳은 것은?",a:["골관절염은 여성에게 더 많이 발생한다","류머티즘 관절염은 퇴행성·비염증성 만성질환이다","골관절염의 강직은 30분 이내 완화되고, 류머티즘 관절염의 강직은 1시간 이상 지속된다","골관절염은 손목·무릎·중수지 관절이 대칭적으로 침범된다","류머티즘 관절염은 Heberden·Bouchard 결절이 특징이다"]},
+            {n:25,c:"근골격계",q:"골절 환자에게 냉찜질을 적용해야 하는 경우는?",a:["관절염 등 만성 통증 시","혈액순환을 촉진해야 할 때","부상 발생 2~3일 후 출혈이 멎었을 때","부상 발생 후 2일 이내 출혈·부종을 감소시켜야 할 때","체온을 회복시켜야 할 때"]},
+            {n:26,c:"근골격계",q:"뼈의 기능으로 옳지 않은 것은?",a:["인체의 기본 형태를 지지한다","중요한 내부 장기와 폐·심장을 보호한다","무기질(칼슘·인·나트륨·마그네슘)을 저장한다","적색골수에서 혈액 세포를 생산한다","산소와 이산화탄소를 교환한다"]},
+            {n:27,c:"근골격계",q:"인대(Ligament)에 대한 설명으로 옳은 것은?",a:["근육과 뼈를 연결하는 섬유성 띠이다","뼈와 뼈를 부착시키는 섬유성 결합조직으로 탈구를 막는 역할을 한다","관절을 덮고 있으며 뼈의 충격을 완충해 주는 쿠션 역할을 한다","관절공간에 활액을 생성한다","골막에 근육을 부착시키는 결합조직이다"]},
+            {n:28,c:"근골격계",q:"골절의 종류와 설명이 올바르게 연결된 것은?",a:["종선 골절 — 골절선이 가로인 경우","횡선 골절 — 골절선이 세로인 경우","분쇄 골절 — 골편(뼛조각)이 3편 이상인 경우","나선 골절 — 골절선이 경사가 생긴 경우","사선 골절 — 골절선이 나선 모양인 경우"]},
+            {n:29,c:"근골격계",q:"수의근에 해당하는 근육은?",a:["평활근","심근","골격근","민무늬근","내장근"]},
+            {n:30,c:"근골격계",q:"환상통(Phantom pain)에 대한 설명으로 옳은 것은?",a:["한 지점에서 시작된 통증이 주변의 넓은 부위로 퍼지는 통증이다","몸의 한 부위나 장기가 물리적으로 없는 상태임에도 있는 것처럼 느끼는 감각이다","관상동맥의 부분적 차단으로 심근 요구에 혈액 공급이 충분하지 못한 것이다","인대가 과도하게 늘어나거나 파열된 것이다","반복적 운동에 의해 생기는 골절로 운동선수에게 많이 나타난다"]},
+            {n:31,c:"근골격계",q:"골격근의 특성으로 올바른 것은?",a:["불수의근이며 민무늬근이다","자율신경계의 지배를 받는다","수의근이며 가로무늬근이고 뇌·척수신경 섬유의 지배를 받는다","심장을 이루는 근육이다","내장기관을 움직이는 근육이다"]},
+            {n:32,c:"근골격계",q:"골다공증의 간호 보조로 옳지 않은 것은?",a:["칼슘이 풍부한 음식(유제품·채소·견과류)을 섭취한다","비타민 C·D·K를 섭취한다","과격한 활동을 금하고 안전한 환경을 제공하여 낙상을 예방한다","알코올과 카페인을 제한한다","이상적인 체중 유지를 위해 운동을 전혀 하지 않는다"]},
+            {n:33,c:"근골격계",q:"개방성 골절에 대한 설명으로 옳은 것은?",a:["골절 부위가 신체 표면으로 노출되지 않는 형태이다","세균 감염의 위험성이 낮다","피부가 찢어진 상처를 통해 공기 중으로 노출되어 세균 감염의 위험성이 높다","폐쇄성 골절보다 치료가 간단하다","석고봉대만으로 치료가 가능하다"]},
+            {n:34,c:"근골격계",q:"추간판탈출증(HNP)이 잘 발생하는 부위로 옳게 짝지어진 것은?",a:["경추 C1-C2, 요추 L1-L2","경추 C5-C6, 요추 L4-L5 또는 L5-S1","경추 C3-C4, 요추 L2-L3","경추 C7-T1, 요추 L3-L4","경추 C4-C5, 요추 L5-S2"]},
+            {n:35,c:"근골격계",q:"수포음(Crackle)에 대한 설명으로 옳은 것은?",a:["수축된 통로를 통한 공기 흐름에 의해 발생하며, 고음이고 연속적이다","액체에 의한 공기 흐름이 원인이며 가늘고 음조가 낮거나 높으며 기간이 짧다","기침을 통해 제거되지 않는다","폐기종 환자에게 특징적으로 나타난다","흡기보다 호기 시에 더 잘 들린다"]},
+            {n:36,c:"순환계통",q:"심장의 크기로 옳은 것은?",a:["약 100~150g","약 150~200g","약 250~300g","약 350~400g","약 450~500g"]},
+            {n:37,c:"순환계통",q:"판막의 위치와 이름이 올바르게 연결된 것은?",a:["우심방→우심실: 이첨판(승모판)","좌심방→좌심실: 삼첨판","우심방→우심실: 삼첨판","우심실→폐동맥: 이첨판","좌심방→우심방: 대동맥판"]},
+            {n:38,c:"순환계통",q:"심장의 자극전도 경로를 순서대로 올바르게 나열한 것은?",a:["방실결절→굴심방결절→방실다발→퍼킨제 섬유","굴심방결절→방실결절→방실다발→퍼킨제 섬유","굴심방결절→방실다발→방실결절→퍼킨제 섬유","방실다발→굴심방결절→방실결절→퍼킨제 섬유","퍼킨제 섬유→방실다발→방실결절→굴심방결절"]},
+            {n:39,c:"순환계통",q:"체순환 경로를 올바르게 나열한 것은?",a:["우심실→폐동맥→폐 모세혈관→폐정맥→좌심방","좌심실→대동맥→온몸 모세혈관→대정맥→우심방","좌심방→대동맥→온몸→대정맥→우심실","우심방→폐정맥→폐→폐동맥→좌심실","좌심실→대정맥→온몸 모세혈관→대동맥→우심방"]},
+            {n:40,c:"순환계통",q:"심음 S1(제1심음)이 발생하는 경우는?",a:["심실 이완 시 대동맥판과 폐동맥판이 닫힐 때","심방 수축 시 삼첨판이 열릴 때","심실 수축 시 승모판과 삼첨판이 닫힐 때","심실 이완 시 승모판과 삼첨판이 열릴 때","심방 이완 시 대동맥판이 닫힐 때"]},
+            {n:41,c:"순환계통",q:"혈구 중 수명이 가장 짧은 것은?",a:["적혈구","백혈구","혈소판","림프구","호중구"]},
+            {n:42,c:"순환계통",q:"적혈구에 대한 설명으로 옳은 것은?",a:["수명이 15일 정도이다","핵이 있는 다양한 모양의 세포이다","혈액 응고를 담당한다","수명이 120일 정도이며 핵이 없는 원반 모양으로 산소 운반을 담당한다","식균 작용과 면역을 담당한다"]},
+            {n:43,c:"순환계통",q:"동맥에 대한 설명으로 옳은 것은?",a:["온몸에서 사용된 혈액을 심장으로 돌려보내는 혈관이다","혈액의 역류를 막기 위한 판막이 있다","동맥과 정맥을 연결하는 아주 얇은 혈관이다","심장에서 강한 압력으로 분출되는 혈액을 받아내기 위해 벽이 두꺼운 혈관이다","한 층의 상피조직 세포로만 구성되어 있다"]},
+            {n:44,c:"순환계통",q:"고혈압의 진단 기준으로 옳은 것은?",a:["수축기압 130mmHg 이상 또는 확장기압 85mmHg 이상","수축기압 140mmHg 이상 또는 확장기압 90mmHg 이상","수축기압 120mmHg 이상 또는 확장기압 80mmHg 이상","수축기압 150mmHg 이상 또는 확장기압 95mmHg 이상","수축기압 160mmHg 이상 또는 확장기압 100mmHg 이상"]},
+            {n:45,c:"순환계통",q:"1차성 고혈압에 대한 설명으로 옳은 것은?",a:["이미 앓고 있던 다른 질환이나 약물의 영향으로 발생한다","전체 고혈압 대상자의 10~15%를 차지한다","유전적 영향이나 노화에 의해 발생하며 전체 고혈압 대상자의 90~95%를 차지한다","신장·갑상선 질환으로 인해 발생한다","치료가 필요하지 않다"]},
+            {n:46,c:"순환계통",q:"림프절에 대한 설명으로 옳은 것은?",a:["림프를 수송하는 일방향성 통로이다","항체와 림프구를 생산하며 적혈구를 저장·파괴하는 기능을 한다","태아기에 크기가 크다가 성장하면서 작아지며 T림프구를 성숙시킨다","콩이나 매듭처럼 보이는 작은 그물조직으로 림프구·항체를 생산하며 이물질·암세포를 여과한다","코나 입으로 들어오는 병원균을 제거하는 역할을 한다"]},
+            {n:47,c:"순환계통",q:"협심증과 심근경색의 차이점으로 옳은 것은?",a:["협심증은 관상동맥이 막혀 심근세포가 괴사한다","심근경색의 통증은 휴식이나 NTG에 의해 완화된다","협심증의 통증은 15분 이내 완화되고, 심근경색의 통증은 30분 이상 지속된다","협심증은 심전도 검사와 혈액 검사로만 진단한다","심근경색은 관상동맥이 좁아져 일시적인 혈액 공급 부족으로 발생한다"]},
+            {n:48,c:"순환계통",q:"니트로글리세린(NTG)에 대한 설명으로 옳은 것은?",a:["혈관을 수축시켜 심장 부담을 증가시킨다","심근경색 환자에게 투여하면 통증이 완화된다","혈관을 이완시키고 심장에 산소를 공급하는 혈관도 확장되어 심장 발작을 막는다","정맥으로만 투여한다","5분 간격으로 10회까지 투여 가능하다"]},
+            {n:49,c:"순환계통",q:"울혈성 심부전(CHF)에서 좌심부전의 증상으로 옳은 것은?",a:["전신 울혈 증상, 하지 부종","폐울혈, 호흡곤란, 기침, 폐부종","요흔성(pitting edema) 부종 발생","간비대","체중 증가"]},
+            {n:50,c:"순환계통",q:"강심제(디기탈리스) 투여 전 반드시 확인해야 하는 것은?",a:["혈당 수치","1분간 심첨 맥박 측정 — 서맥(60회 이하) 시 투약 중지","혈압 수치 — 고혈압 시 투약 중지","체온 수치 — 발열 시 투약 중지","호흡수 — 빈호흡 시 투약 중지"]},
+            {n:51,c:"순환계통",q:"혈장(Plasma)과 혈청(Serum)의 차이로 옳은 것은?",a:["혈장은 피브리노겐이 없고, 혈청은 피브리노겐이 있다","혈장은 피브리노겐이 있고, 혈청은 피브리노겐이 없다","혈장과 혈청의 구성성분은 동일하다","혈청은 혈구를 포함한다","혈장은 혈액의 45%를 차지한다"]},
+            {n:52,c:"순환계통",q:"기립성 저혈압에 대한 설명으로 옳은 것은?",a:["인구의 1~2%에서 발견되며 치료가 필요하지 않다","소화기계로 혈액이 집중되어 다른 장기의 혈액 공급이 감소되어 발생한다","앉거나 누운 자세에서 일어서면 중력에 의해 혈액이 아래로 몰리면서 뇌 혈류가 부족해져 어지러운 증상이 나타난다","갑자기 발생하며 다량의 출혈·화상·구토·설사 등에 의해 체액이 감소하여 발생한다","주로 고혈압약에 의해 발생한다"]},
+            {n:53,c:"순환계통",q:"대사증후군 진단 기준에 해당하지 않는 것은?",a:["허리둘레: 남자 90cm 이상, 여자 85cm 이상","중성지방: 150mg/dL 이상","고밀도지방: 남자 40mg/dL 미만, 여자 50mg/dL 미만","혈압: 130/85mmHg 이상","체질량지수(BMI): 25 이상"]},
+            {n:54,c:"순환계통",q:"적혈구 생성에 관여하는 비타민 B12가 부족하여 나타나는 빈혈은?",a:["철분결핍성 빈혈","악성 빈혈","재생불량성 빈혈","용혈성 빈혈","출혈성 빈혈"]},
+            {n:55,c:"순환계통",q:"수혈 시 가장 먼저 확인해야 하는 것은?",a:["혈압과 체온","수혈자와 공혈자의 혈액형이 일치하는지 확인","주사 부위의 피부 상태","수혈 속도","혈액의 색깔"]},
+            {n:56,c:"순환계통",q:"악성 빈혈에 대한 설명으로 옳은 것은?",a:["신체의 철 함유량이 정상보다 저하된 상태이다","비타민 B12 결핍으로 나타나며 40~45세에 호발하고 위암이 잘 발생한다","골수의 조혈기능이 저하되고 조혈 조직이 지방화하는 상태이다","적혈구의 파괴 속도가 빨라 적혈구량이 부족하여 일어나는 빈혈이다","치질로 인한 만성 출혈 환자에게 호발한다"]},
+            {n:57,c:"순환계통",q:"림프계에 대한 설명으로 옳지 않은 것은?",a:["림프는 모세혈관의 물질교환을 통해 혈관에서 조직으로 이동한 액체이다","림프관은 일방향성 통로로 최종적으로 쇄골하정맥에서 혈액과 합쳐진다","흉선은 태아기에 크기가 크다가 성장하면서 작아지며 T림프구를 성숙시킨다","비장은 코나 입으로 들어오는 병원균을 제거하는 역할을 한다","림프절은 이물질·암세포 등을 여과한다"]},
+            {n:58,c:"순환계통",q:"죽상동맥경화증에 대한 설명으로 옳은 것은?",a:["주로 혈관의 내막에 퇴행성 변화가 일어나서 섬유화가 진행된다","혈관 내부가 70% 이상 막히면 혈류 흐름이 방해되어 증상이 나타난다","원인으로 저콜레스테롤혈증, 낮은 중성지방이 있다","동맥경화증은 혈관의 탄력성이 증가하는 상태이다","죽상동맥경화증은 수술로만 치료 가능하다"]},
+            {n:59,c:"순환계통",q:"심근경색 환자의 급성기 간호로 옳지 않은 것은?",a:["산소를 비강으로 투여한다","절대 안정을 취한다","모르핀을 IV로 투여한다","심전도 모니터링을 한다","활발한 운동을 권장한다"]},
+            {n:60,c:"순환계통",q:"철분결핍성 빈혈의 간호로 옳은 것은?",a:["철분제는 최소 3개월간 복용한다","철분제는 비타민 C와 함께 복용하면 흡수가 증가한다","우유·커피는 철분 흡수를 도우므로 함께 복용한다","철분제 복용 시 대변이 흰색으로 변하는 것은 정상이다","철분제 복용 후 정상치로 회복되면 즉시 복용을 중단한다"]},
+            {n:61,c:"순환계통",q:"심장박동을 촉진하는 요인으로 올바르게 짝지어진 것은?",a:["부교감신경, 에피네프린","교감신경, 카페인","부교감신경, 아세틸콜린","교감신경, 부교감신경","부교감신경, 니코틴"]},
+            {n:62,c:"순환계통",q:"동맥혈에 대한 설명으로 옳은 것은?",a:["이산화탄소가 풍부하여 산소포화도가 낮다","체순환 후 우심방으로 돌아오는 혈액이다","폐정맥에는 정맥혈이 흐른다","우심실에서 나와 전신에 공급되는 혈액이다","산소포화도가 높은 혈액으로 폐순환 후 체순환 전의 혈액이다"]},
+            {n:63,c:"순환계통",q:"수혈 중 이상반응이 발생하였을 때 가장 먼저 취해야 할 조치는?",a:["수혈 속도를 늦춘다","즉시 수혈을 중지하고 간호사나 의사에게 보고한다","해열제를 투여한다","항히스타민제를 투여한다","체온을 측정한다"]},
+            {n:64,c:"순환계통",q:"고혈압 예방을 위한 식사요법으로 옳은 것은?",a:["나트륨 섭취를 늘린다","정제된 곡류(백미·흰빵)를 섭취한다","나트륨 섭취를 줄이고 칼륨·칼슘·마그네슘 등 무기질 섭취를 늘린다","포화지방이 많은 육류를 충분히 섭취한다","알코올 섭취는 혈압과 관계없다"]},
+            {n:65,c:"순환계통",q:"굴심방결절(SA node)에 대한 설명으로 옳은 것은?",a:["방실결절에 도달한 자극을 전달하며 심첨에서 발실가지로 나뉜다","방실가지에서 심실 근육속으로 자극을 전달하는 심근 섬유이다","일정한 간격으로 전기신호를 보내 심장이 박동하게 만드는 맥박조율기(Pacemaker)이다","우심방과 삼첨판 사이의 중격에 위치해 전기 자극을 전달한다","방실다발에서 심실 근육속으로 자극을 전달하는 섬유이다"]},
+            {n:66,c:"순환계통",q:"혈관의 구조에 대한 설명으로 옳지 않은 것은?",a:["동맥과 정맥 모두 세 개의 층으로 구성되어 있다","동맥은 두꺼운 중막을 가지고 있다","정맥은 압력이 약해 혈액이 역류하지 않도록 판막이 있다","모세혈관은 한 층의 상피조직 세포로 구성되어 물질교환이 이루어진다","모세혈관은 세 개의 층으로 구성되어 있다"]},
+            {n:67,c:"순환계통",q:"기립성 저혈압 진단 기준으로 옳은 것은?",a:["3분 이내에 수축기 혈압이 20mmHg, 이완기 혈압이 10mmHg 이상 떨어지는지 확인","5분 이내에 수축기 혈압이 30mmHg, 이완기 혈압이 20mmHg 이상 떨어지는지 확인","서있는 상태에서 혈압이 140/90mmHg 이상인 경우","누운상태에서 혈압이 90mmHg 미만인 경우","앉아있는 상태에서 혈압이 130/85mmHg 이상인 경우"]},
+            {n:68,c:"순환계통",q:"폐정맥이 연결되는 심장의 방은?",a:["우심방","우심실","좌심방","좌심실","심실 사이막"]},
+            {n:69,c:"순환계통",q:"패혈성 쇼크에 대한 설명으로 옳은 것은?",a:["앉거나 누운 자세에서 일어설 때 발생한다","다량의 출혈·화상·구토·설사에 의해 체액이 감소하여 발생한다","세균이 혈류로 침입해 전신 반응을 일으키는 패혈증에 더하여 혈압이 매우 낮아 사망할 위험이 높은 상태이다","인구의 1~2%에서 발견되며 치료가 필요하지 않다","식사 후 소화기계로 혈액이 집중되어 발생한다"]},
+            {n:70,c:"순환계통",q:"혈소판의 특성으로 옳은 것은?",a:["수명이 120일 정도이며 산소 운반을 담당한다","수명이 15일 정도이며 식균 작용과 면역을 담당한다","수명이 3~7일이며 혈구 중 가장 작고 혈액 응고를 담당한다","핵이 있는 원반 모양의 세포이다","이산화탄소와 산소를 운반하는 역할을 한다"]},
+            {n:71,c:"호흡계통",q:"호흡계통의 기능으로 옳지 않은 것은?",a:["가스교환","산염기 평형","발성","후각 작용","호르몬 분비"]},
+            {n:72,c:"호흡계통",q:"외호흡에 대한 설명으로 옳은 것은?",a:["조직 내의 세포와 혈액 사이의 교환이다","산소는 모세혈관에서 조직세포 쪽으로 이동한다","혈액이 폐포와 모세혈관을 지날 때 폐포와 모세혈관 사이에서 일어나는 가스교환이다","이산화탄소는 조직세포에서 폐포 쪽으로 이동한다","심장에서 이루어지는 가스교환이다"]},
+            {n:73,c:"호흡계통",q:"객혈(hemoptysis)의 특성으로 옳은 것은?",a:["pH 7 이하의 산성이다","검붉은색이다","거품이 없다","밝은 붉은색이며 알칼리성(pH 7 이상)이다","흑색변이 나타난다"]},
+            {n:74,c:"호흡계통",q:"폐렴 환자의 특유 객담으로 옳은 것은?",a:["무색·맑은 점액","녹색 화농성 객담","녹슨 쇳빛 객담","분홍빛의 점액성 객담","거품이 있는 분홍색 객담"]},
+            {n:75,c:"호흡계통",q:"흉부 물리요법 중 타진법(Percussion)에 대한 설명으로 옳은 것은?",a:["숨을 천천히 길게 쉬도록 하고 흉벽을 진동하듯 움직여 분비물이 움직이게 하는 방법이다","손을 컵 모양으로 오므리고 손목을 이용하여 속이 빈 소리가 나게 두드려 분비물을 묽게 만들고 기침을 자극한다","고농도의 산소를 제공하는 방법이다","폐의 압력을 낮추는 방법이다","호흡수를 감소시키는 방법이다"]},
+            {n:76,c:"호흡계통",q:"결핵균의 특성으로 옳은 것은?",a:["혈액 매개 감염을 통해 전파된다","항산성 특징이 있으며(AFB) 공기 매개 감염을 통해 전파된다","빠르게 증식하는 특성이 있다","물이나 음식물을 통해 전파된다","피부 접촉으로 전파된다"]},
+            {n:77,c:"호흡계통",q:"투베르쿨린 반응검사(PPD)의 양성 판정 기준은?",a:["주사한 부위가 5mm보다 크면 양성","주사한 부위가 10mm보다 크면 양성","주사한 부위가 15mm보다 크면 양성","주사한 부위가 20mm보다 크면 양성","주사한 부위가 25mm보다 크면 양성"]},
+            {n:78,c:"호흡계통",q:"결핵 치료에 대한 설명으로 옳은 것은?",a:["1차 결핵약제 치료에 실패하면 같은 약제를 더 고용량으로 사용한다","복합약제로 장기간 치료가 권장되며 치료기간은 6개월에서 1년 이상이다","결핵약은 나누어 여러 번 복용하는 것이 효과적이다","증상이 호전되면 약물을 즉시 중단한다","결핵약 Rifampin은 청신경 손상이 주요 부작용이다"]},
+            {n:79,c:"호흡계통",q:"결핵 환자의 간호 보조로 옳은 것은?",a:["격리할 필요가 없다","양압이 유지되는 1인실에 격리 치료한다","음압이 유지되는 1인실에 격리 치료하고 마스크를 착용한다","증상이 나타날 때만 약물을 복용한다","저칼로리·저단백 식이를 제공한다"]},
+            {n:80,c:"호흡계통",q:"천식(Asthma)에 대한 설명으로 옳은 것은?",a:["기도의 공기흐름 제한이 비가역적이다","만성적인 기도 염증·기도 과민성의 증가·가역적인 기도 폐쇄가 나타나는 폐쇄성 폐질환이다","폐포의 탄력성이 상실된다","기관지 수축이 일어나 기도의 공기흐름이 증가한다","흡연이 가장 큰 위험요인이다"]},
+            {n:81,c:"호흡계통",q:"천식 대상자 교육내용으로 옳은 것은?",a:["따뜻하고 습하게 실내를 유지한다","침구류는 월 1회 차가운 물로 세탁한다","인플루엔자(독감) 예방 접종을 받는다","황사가 심한 날 일반 면마스크를 착용한다","집에서 반려동물을 키우는 것은 무관하다"]},
+            {n:82,c:"호흡계통",q:"COPD(만성폐쇄성폐질환)의 가장 큰 위험요인은?",a:["유전","흡연","대기오염","직업성 분진","반복적인 호흡기 감염"]},
+            {n:83,c:"호흡계통",q:"COPD 환자에게 저산소혈증이 있을 때 산소를 저농도로 제공해야 하는 이유는?",a:["고농도의 산소 투여 시 호흡조절 능력을 상실할 수 있기 때문이다","저농도가 치료 비용이 적게 들기 때문이다","고농도 산소가 폐를 직접 손상시키기 때문이다","저농도 산소가 더 빠르게 흡수되기 때문이다","고농도 산소는 심장에 부담을 주기 때문이다"]},
+            {n:84,c:"호흡계통",q:"만성 기관지염과 폐기종의 비교로 옳은 것은?",a:["만성 기관지염에서는 과공명음이 타진된다","폐기종에서는 이른 아침 객담 섞인 기침이 특징적이다","만성 기관지염에서는 천명음이 없다","폐기종에서는 후기에 심하게 체중이 감소하고 호흡곤란으로 저산소혈증이 나타난다","만성 기관지염에서는 술통형 가슴이 특징이다"]},
+            {n:85,c:"호흡계통",q:"비정상 호흡양상에 대한 설명이 옳게 연결된 것은?",a:["쿠스마울 호흡 — 빠르고 강한 호흡에 이어 무호흡이 주기적으로 보인다","체인스토크스 호흡 — 항상 깊고 대부분 빠른 호흡이다","쿠스마울 호흡 — 항상 깊고 대부분 빠른 호흡이다","수포음 — 수축된 통로를 통한 공기 흐름에 의해 발생하며 고음이고 연속적이다","천명음 — 액체에 의한 공기 흐름이 원인이다"]},
+            {n:86,c:"호흡계통",q:"산소공급기구 중 가장 정확하게 산소를 전달하는 것은?",a:["비강캐뉼러","단순 마스크","부분재호흡 마스크","벤추리 마스크","비재호흡 마스크"]},
+            {n:87,c:"호흡계통",q:"피내주사(Intradermal injection)에 대한 설명으로 옳은 것은?",a:["용량은 5~10ml의 많은 양이다","주사각도는 45~90°이다","표피 아래 진피에 투여하는 주사로 가장 흡수가 느리나 약물에 대한 반응을 쉽게 눈으로 확인 가능하다","근육 내 투여 방법이다","영양 공급을 목적으로 한다"]},
+            {n:88,c:"호흡계통",q:"결핵약 Rifampin(RFP)의 주요 부작용으로 옳은 것은?",a:["말초신경염·간독성","시신경염·색각 변화","분비물과 소변이 오렌지색으로 변함, 위장장애","제8신경(청신경) 손상·신장장애","우울증·정신장애·경련"]},
+            {n:89,c:"호흡계통",q:"COPD 환자의 영양 섭취에 대한 설명으로 옳은 것은?",a:["탄수화물을 충분히 섭취한다","3끼 규칙적으로 식사한다","저칼로리·저단백 식이를 제공한다","고칼로리·고단백 식이를 제공하며 탄수화물은 50% 이내로 조정한다","우유와 초콜릿 등을 충분히 섭취한다"]},
+            {n:90,c:"호흡계통",q:"정량식흡입제(MDI) 사용 후 취해야 할 행동은?",a:["즉시 호흡을 내쉰다","10초 가량 숨을 참는다","1분 정도 기다린 후 호흡한다","즉시 물을 마신다","코로 깊게 호흡한다"]},
+            {n:91,c:"호흡계통",q:"폐렴의 진단에서 폐의 침윤을 확인하는 가장 중요한 검사는?",a:["혈액 검사","흉부 X선 검사","객담 배양 검사","폐기능 검사","동맥혈 가스 검사"]},
+            {n:92,c:"호흡계통",q:"폐기능 검사(PFT)에 대한 설명으로 옳은 것은?",a:["혈액 내 산소분압과 이산화탄소분압을 확인하는 검사이다","객담 내 세균을 확인하는 검사이다","기도로 드나드는 공기의 양·속도 등을 측정하여 기관지 및 폐의 전반적 기능을 평가하는 검사이다","알레르기 원인을 파악하기 위해 피부에 원인 물질을 주입하는 검사이다","투베르쿨린 반응을 확인하는 검사이다"]},
+            {n:93,c:"호흡계통",q:"결핵의 일반적인 증상으로 옳지 않은 것은?",a:["2주 이상 지속되는 기침","체중 감소","야간발한","갑작스럽고 격렬한 흉부 통증(쥐어짜는 듯한 분쇄성 통증)","미열과 오한"]},
+            {n:94,c:"호흡계통",q:"천식 발작 시 즉시 응급실을 찾아야 하는 상황이 아닌 것은?",a:["손톱이나 입술이 회색이거나 파랗다","가벼운 기침이 있고 증상이 안정적이다","호흡·보행·말하기가 어렵고 콧구멍이 확대된다","약물로도 증상이 조절되지 않는다","의식수준이 저하되고 맥박이 빨라진다"]},
+            {n:95,c:"호흡계통",q:"COPD 환자의 호흡기능 향상을 위한 호흡법으로 옳은 것은?",a:["흉식호흡과 입술 다물기 호흡","복식호흡과 입술 오므리기 호흡","빠른 호흡과 얕은 호흡","입으로 들이쉬고 코로 내쉬는 방법","고농도 산소를 마시며 깊게 호흡하는 방법"]},
+            {n:96,c:"호흡계통",q:"폐암의 위험요인으로 옳지 않은 것은?",a:["흡연","간접 흡연","석면 노출","미세먼지","규칙적인 운동"]},
+            {n:97,c:"호흡계통",q:"WHO 3단계 진통제 사다리에서 중등도 통증(NRS 4~6점)에 사용하는 약물은?",a:["아스피린·타이레놀","코데인·트라마돌","모르핀·펜타닐","옥시코돈","이부프로펜"]},
+            {n:98,c:"호흡계통",q:"결핵 환자 격리에 대한 설명으로 옳은 것은?",a:["격리할 필요가 없다","결핵 환자는 양압 1인실에 격리한다","결핵 환자는 음압이 유지되는 1인실에 격리 치료한다","결핵 환자는 다인실에서 치료받을 수 있다","격리 기간은 1주일이다"]},
+            {n:99,c:"호흡계통",q:"후두개(후두덮개)의 역할로 옳은 것은?",a:["발성을 담당한다","공기와 음식물의 공통 통로이다","기관으로 이물질이 들어가는 것을 막는다","산소와 이산화탄소를 교환한다","비강과 연결되어 발성 시 소리의 공명을 돕는다"]},
+            {n:100,c:"호흡계통",q:"COPD의 치료 목표 산소포화도로 옳은 것은?",a:["95% 이상","90% 이상","85% 이상","80% 이상","75% 이상"]}
+        ];
+        const realAnswers = {
+            1:4,2:4,3:4,4:3,5:3,6:3,7:3,8:3,9:2,10:2,
+            11:4,12:4,13:3,14:1,15:2,16:2,17:3,18:3,19:3,20:3,
+            21:2,22:3,23:2,24:3,25:4,26:5,27:2,28:3,29:3,30:2,
+            31:3,32:5,33:3,34:2,35:2,
+            36:3,37:3,38:2,39:2,40:3,41:3,42:4,43:4,44:2,45:3,
+            46:4,47:3,48:3,49:2,50:2,51:2,52:3,53:5,54:2,55:2,
+            56:2,57:4,58:2,59:5,60:2,61:2,62:5,63:2,64:3,65:3,
+            66:5,67:1,68:3,69:3,70:3,
+            71:5,72:3,73:4,74:3,75:2,76:2,77:2,78:2,79:3,80:2,
+            81:3,82:2,83:1,84:4,85:3,86:4,87:3,88:3,89:4,90:2,
+            91:2,92:3,93:4,94:2,95:2,96:5,97:2,98:3,99:3,100:2
+        };
+
+        const EXPLANATIONS = {
+            1:"뼈와 근육 등 인체를 지지하고 움직임을 담당하는 것이 근골격계의 기본 기능이다.",
+            2:"관절은 두 개 이상의 뼈가 만나는 부위로 움직임을 가능하게 한다.",
+            3:"활액은 관절강 내 활막에서 분비되어 관절의 마찰을 줄이고 윤활 작용을 한다.",
+            4:"건(힘줄)은 근육과 뼈를 연결하는 섬유성 띠로, 골막에 근육을 부착시킨다.",
+            5:"PRICE에서 I는 Ice(냉찜질)로, 혈관을 수축시켜 부종과 출혈을 줄인다.",
+            6:"골절 회복은 혈종형성→골아세포증식→가골형성→골화 및 재형성 순으로 진행된다.",
+            7:"나선절전대(절전대)는 굵기가 고르지 못한 종아리·전박에 적용한다.",
+            8:"척추측만증의 기능적 요인으로는 불량한 자세나 다리 길이 차이 등이 있다.",
+            9:"하지직거상검사(SLR)는 다리를 30~70° 미만으로 올릴 때 통증·허약감이 나타나면 양성이다.",
+            10:"골다공증은 에스트로겐 감소 시 골밀도가 급속히 감소하여 발생한다.",
+            11:"골관절염의 강직은 30분 이내에 완화되는 것이 특징이다.",
+            12:"류머티즘 관절염은 손가락 척골 일탈, 백조 목 기형 등이 나타난다.",
+            13:"류머티즘 관절염은 RF(류머티즘 인자) 검사에서 양성으로 나타난다.",
+            14:"Phalen 검사는 손목을 90° 구부려 양 손등을 마주친 채 60초간 무감각·저림이 나타나면 양성이다.",
+            15:"급성 구획증후군은 조직 내 압이 30mmHg 초과 시 즉시 봉대·깁스를 제거하고 필요시 근막절개술을 시행한다.",
+            16:"좌상(Strain)은 과도한 사용·반복 움직임·갑작스러운 힘에 의해 근육 또는 건이 파열된 것이다.",
+            17:"냉찜질은 부상 발생 후 2일 이내에 시행하여 혈관을 수축시키고 출혈·부종을 줄인다.",
+            18:"목발은 액와신경 손상 예방을 위해 겨드랑이가 아닌 손과 손목에 체중을 싣는다.",
+            19:"환행대는 동일 부위를 수차례 돌려 감으며 모든 봉대의 시작과 끝에 사용한다.",
+            20:"부목은 환부 뼈 길이보다 긴 것을 선택하고 말단 부위를 노출하여 순환·신경을 확인한다.",
+            21:"추간판탈출증 환자는 반좌위에서 무릎을 굴곡하는 자세가 통증 완화에 적절하다.",
+            22:"척추측만증 만곡이 50° 이상이면 척추 사이에 기구를 삽입하는 외과적 치료를 적용한다.",
+            23:"류머티즘 관절염은 활막 관절 내 결합조직의 염증성 변화로 기형이 생기는 자가면역질환이다.",
+            24:"골관절염 강직은 30분 이내 완화되고, 류머티즘 관절염 강직은 1시간 이상 지속된다.",
+            25:"냉찜질은 부상 발생 후 2일 이내 출혈·부종을 감소시켜야 할 때 적용한다.",
+            26:"산소와 이산화탄소 교환은 호흡계의 기능이며, 뼈의 기능이 아니다.",
+            27:"인대는 뼈와 뼈를 부착시키는 섬유성 결합조직으로 탈구를 막는 역할을 한다.",
+            28:"분쇄 골절은 골편(뼛조각)이 3편 이상인 경우를 말한다.",
+            29:"골격근은 의지대로 움직일 수 있는 수의근이다.",
+            30:"환상통은 신체 부위가 물리적으로 없는데도 있는 것처럼 느끼는 감각이다.",
+            31:"골격근은 수의근이며 가로무늬근이고 뇌·척수신경 섬유의 지배를 받는다.",
+            32:"골다공증 환자도 적절한 운동(체중부하 운동)이 필요하므로 운동을 전혀 하지 않는 것은 옳지 않다.",
+            33:"개방성 골절은 피부가 찢어진 상처를 통해 노출되어 세균 감염 위험이 높다.",
+            34:"추간판탈출증은 경추 C5-C6, 요추 L4-L5 또는 L5-S1에 잘 발생한다.",
+            35:"수포음은 액체에 의한 공기 흐름이 원인으로 가늘고 음조가 낮거나 높으며 기간이 짧다.",
+            36:"심장의 크기는 약 250~300g이다.",
+            37:"우심방에서 우심실로 가는 판막은 삼첨판이다.",
+            38:"자극전도는 굴심방결절→방실결절→방실다발→퍼킨제 섬유 순이다.",
+            39:"체순환은 좌심실→대동맥→온몸 모세혈관→대정맥→우심방 경로이다.",
+            40:"제1심음(S1)은 심실 수축 시 승모판과 삼첨판이 닫힐 때 발생한다.",
+            41:"혈소판은 수명이 3~7일로 혈구 중 가장 짧다.",
+            42:"적혈구는 수명이 120일 정도이며 핵이 없는 원반 모양으로 산소 운반을 담당한다.",
+            43:"동맥은 심장에서 강한 압력으로 분출되는 혈액을 받아내기 위해 벽이 두껍다.",
+            44:"고혈압은 수축기압 140mmHg 이상 또는 확장기압 90mmHg 이상이다.",
+            45:"1차성 고혈압은 유전·노화에 의해 발생하며 전체의 90~95%를 차지한다.",
+            46:"림프절은 그물조직으로 림프구·항체를 생산하며 이물질·암세포를 여과한다.",
+            47:"협심증 통증은 15분 이내 완화되고, 심근경색 통증은 30분 이상 지속된다.",
+            48:"NTG는 혈관을 이완시키고 심장에 산소를 공급하는 혈관도 확장하여 발작을 막는다.",
+            49:"좌심부전은 폐울혈, 호흡곤란, 기침, 폐부종 증상이 나타난다.",
+            50:"강심제(디기탈리스) 투여 전 1분간 심첨 맥박을 측정하여 서맥(60회 이하) 시 투약을 중지한다.",
+            51:"혈장은 피브리노겐이 있고, 혈청은 응고 후 남은 액체로 피브리노겐이 없다.",
+            52:"기립성 저혈압은 일어설 때 혈액이 아래로 몰려 뇌 혈류가 부족해져 어지러움이 나타난다.",
+            53:"체질량지수(BMI)는 대사증후군 진단 기준에 포함되지 않는다.",
+            54:"비타민 B12 결핍으로 나타나는 빈혈은 악성 빈혈이다.",
+            55:"수혈 시 가장 먼저 수혈자와 공혈자의 혈액형 일치 여부를 확인한다.",
+            56:"악성 빈혈은 비타민 B12 결핍으로 나타나며 40~45세에 호발하고 위암이 잘 발생한다.",
+            57:"비장은 혈액을 여과하는 기관이며, 코나 입의 병원균 제거는 편도의 역할이다.",
+            58:"죽상동맥경화증은 혈관 내부가 70% 이상 막히면 혈류가 방해되어 증상이 나타난다.",
+            59:"심근경색 급성기에는 절대 안정이 필요하며 활발한 운동은 금기이다.",
+            60:"철분제는 비타민 C와 함께 복용하면 흡수가 증가한다.",
+            61:"교감신경과 카페인은 심장박동을 촉진하는 요인이다.",
+            62:"동맥혈은 산소포화도가 높은 혈액으로 폐순환 후 체순환 전의 혈액이다.",
+            63:"수혈 이상반응 발생 시 즉시 수혈을 중지하고 간호사·의사에게 보고한다.",
+            64:"고혈압 예방을 위해 나트륨을 줄이고 칼륨·칼슘·마그네슘 등 무기질 섭취를 늘린다.",
+            65:"굴심방결절은 일정 간격으로 전기신호를 보내 심장을 박동하게 하는 맥박조율기이다.",
+            66:"모세혈관은 한 층의 상피조직 세포로 구성되며 세 개의 층이 아니다.",
+            67:"기립성 저혈압은 3분 이내에 수축기 20mmHg, 이완기 10mmHg 이상 떨어지면 진단한다.",
+            68:"폐정맥은 좌심방으로 연결된다.",
+            69:"패혈성 쇼크는 패혈증에 더해 혈압이 매우 낮아 사망 위험이 높은 상태이다.",
+            70:"혈소판은 수명이 3~7일이며 혈구 중 가장 작고 혈액 응고를 담당한다.",
+            71:"호르몬 분비는 내분비계의 기능이며 호흡계통의 기능이 아니다.",
+            72:"외호흡은 폐포와 모세혈관 사이에서 일어나는 가스교환이다.",
+            73:"객혈은 밝은 붉은색이며 알칼리성(pH 7 이상)이다.",
+            74:"폐렴의 특유 객담은 녹슨 쇳빛 객담이다.",
+            75:"타진법은 손을 컵 모양으로 오므려 두드려 분비물을 묽게 하고 기침을 자극한다.",
+            76:"결핵균은 항산성(AFB) 특징이 있으며 공기 매개 감염으로 전파된다.",
+            77:"PPD 검사는 주사 부위가 10mm보다 크면 양성이다.",
+            78:"결핵은 복합약제로 6개월에서 1년 이상 장기간 치료한다.",
+            79:"결핵 환자는 음압이 유지되는 1인실에 격리 치료하고 마스크를 착용한다.",
+            80:"천식은 만성 기도 염증·기도 과민성 증가·가역적 기도 폐쇄가 나타나는 폐쇄성 폐질환이다.",
+            81:"천식 환자는 인플루엔자(독감) 예방 접종을 받아야 한다.",
+            82:"COPD의 가장 큰 위험요인은 흡연이다.",
+            83:"COPD 환자는 고농도 산소 투여 시 호흡조절 능력을 상실할 수 있어 저농도로 제공한다.",
+            84:"폐기종은 후기에 심한 체중 감소와 호흡곤란으로 저산소혈증이 나타난다.",
+            85:"쿠스마울 호흡은 항상 깊고 대부분 빠른 호흡이다.",
+            86:"벤추리 마스크는 산소를 가장 정확하게 전달하는 기구이다.",
+            87:"피내주사는 표피 아래 진피에 투여하며 흡수가 가장 느리고 반응을 눈으로 확인 가능하다.",
+            88:"Rifampin은 분비물과 소변이 오렌지색으로 변하고 위장장애가 주요 부작용이다.",
+            89:"COPD 환자는 고칼로리·고단백 식이를 제공하며 탄수화물은 50% 이내로 조정한다.",
+            90:"MDI 사용 후 약물이 폐에 잘 도달하도록 10초가량 숨을 참는다.",
+            91:"폐렴의 폐 침윤 확인에 가장 중요한 검사는 흉부 X선 검사이다.",
+            92:"폐기능 검사(PFT)는 기도로 드나드는 공기의 양·속도를 측정해 폐 기능을 평가한다.",
+            93:"갑작스럽고 격렬한 흉부 통증은 결핵의 일반적 증상이 아니다.",
+            94:"가벼운 기침이 있고 증상이 안정적인 경우는 응급실을 찾아야 하는 상황이 아니다.",
+            95:"COPD 환자는 복식호흡과 입술 오므리기 호흡으로 호흡기능을 향상시킨다.",
+            96:"규칙적인 운동은 폐암 위험요인이 아니다.",
+            97:"WHO 3단계 중 중등도 통증(NRS 4~6점)에는 코데인·트라마돌을 사용한다.",
+            98:"결핵 환자는 음압이 유지되는 1인실에 격리 치료한다.",
+            99:"후두개(후두덮개)는 기관으로 이물질이 들어가는 것을 막는다.",
+            100:"COPD의 치료 목표 산소포화도는 90% 이상이다."
+        };
+        const container = document.getElementById('quizContainer');
+        let curCat = "";
+        questionsData.forEach(q => {
+            if(curCat !== q.c){
+                curCat = q.c;
+                const titles = {"근골격계":"🦴 근골격계 (1~35번)","순환계통":"❤️ 순환계통 (36~70번)","호흡계통":"🫁 호흡계통 (71~100번)"};
+                const sec = document.createElement('div');
+                sec.className='section-title'; sec.innerText=titles[q.c];
+                container.appendChild(sec);
+            }
+            const block = document.createElement('div');
+            block.className='q-block';
+            block.id = 'qblock-' + q.n;
+            const circles=['①','②','③','④','⑤'];
+            let ch='';
+            q.a.forEach((opt,i)=>{
+                ch+=`<li class="choice-item"><input type="radio" name="q${q.n}" id="q${q.n}_${i+1}" value="${i+1}"><label class="choice-label" for="q${q.n}_${i+1}">${circles[i]} ${opt}</label></li>`;
+            });
+            block.innerHTML=`<span class="cat-badge cat-${q.c}">${q.c}</span><div class="q-num">문제 ${q.n}.</div><div class="q-text">${q.q}</div><ul class="q-choices">${ch}</ul>`;
+            // 선택 시 진행 카운터 업데이트
+            block.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', updateProgress3);
+            });
+            container.appendChild(block);
+        });
+        function gradeExam(){
+            // 미응답 문항 수집
+            const unAnswered = [];
+            for(let i=1;i<=100;i++){
+                if(!document.querySelector(`input[name="q${i}"]:checked`)) unAnswered.push(i);
+            }
+            // 미응답 있으면 제출 완전 차단
+            if(unAnswered.length > 0){
+                document.querySelectorAll('.unanswered-warning').forEach(el=>el.remove());
+                document.querySelectorAll('.q-block.unanswered').forEach(el=>el.classList.remove('unanswered'));
+                unAnswered.forEach(n => {
+                    const input = document.querySelector(`input[name="q${n}"]`);
+                    if(input){
+                        const block = input.closest('.q-block');
+                        if(block){
+                            block.classList.add('unanswered');
+                            const warn = document.createElement('div');
+                            warn.className = 'unanswered-warning';
+                            warn.textContent = '⚠ 답을 선택해주세요';
+                            block.appendChild(warn);
+                        }
+                    }
+                });
+                const firstBlock = document.querySelector(`input[name="q${unAnswered[0]}"]`)?.closest('.q-block');
+                if(firstBlock) firstBlock.scrollIntoView({behavior:'smooth', block:'center'});
+                let btnWarn = document.getElementById('btn-warning');
+                if(!btnWarn){
+                    btnWarn = document.createElement('div');
+                    btnWarn.id = 'btn-warning';
+                    btnWarn.style.cssText = 'width:100%;max-width:700px;background:#fee2e2;border:2px solid #fca5a5;border-radius:12px;padding:14px 18px;margin-top:10px;font-size:0.95rem;color:#991b1b;font-weight:bold;text-align:center;box-sizing:border-box;';
+                    document.querySelector('.btn-submit').after(btnWarn);
+                }
+                btnWarn.innerHTML = `❌ 아직 <strong>${unAnswered.length}문제</strong>를 풀지 않았어요!<br><span style="font-size:0.85rem;font-weight:normal">미응답 문항: ${unAnswered.slice(0,10).join(', ')}${unAnswered.length>10?' 외 '+(unAnswered.length-10)+'문항':''}</span>`;
+                return;
+            }
+            // 모두 응답 시 워닝 제거
+            document.getElementById('btn-warning')?.remove();
+            document.querySelectorAll('.unanswered-warning').forEach(el=>el.remove());
+            document.querySelectorAll('.q-block.unanswered').forEach(el=>el.classList.remove('unanswered'));
+
+            let s1=0,s2=0,s3=0;
+            for(let i=1;i<=100;i++){
+                const sel=document.querySelector(`input[name="q${i}"]:checked`);
+                if(parseInt(sel.value)===realAnswers[i]){
+                    if(i<=35)s1++; else if(i<=70)s2++; else s3++;
+                }
+            }
+            const total=s1+s2+s3;
+            document.getElementById('scoreDisplay').innerText=`${total}점 / 100점`;
+            document.getElementById('score1').innerText=s1;
+            document.getElementById('score2').innerText=s2;
+            document.getElementById('score3').innerText=s3;
+            let msg="";
+            if(total===100)msg="🎉 100점 만점! 국시 수석 합격각입니다! ⭐";
+            else if(total>=80)msg="👍 안정적인 합격선! 이 흐름 유지해요!";
+            else if(total>=60)msg="💡 합격 기준 통과! 틀린 문제 한 번만 더 복습해요!";
+            else msg="❤️ 오답 노트 작성 후 다시 도전! 할 수 있어요!";
+            document.getElementById('commentDisplay').innerText=msg;
+            document.getElementById('submit-who').textContent = currentClass + ' ' + currentStudent + ' 님';
+            document.getElementById('resultModal').style.display='flex';
+            sendScore(); // 채점과 동시에 자동 제출
+            showExplanations(); // 문항별 정답·해설 표시
+            window.lastScore = total; // 다운로드용
+        }
+        function closeModal(){
+            document.getElementById('resultModal').style.display='none';
+            // 결과(해설) 화면 최상단으로 스크롤
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
+
+        // ── PDF 다운로드 (전체 / 오답만) ──
+        function downloadPDF(mode){
+            const circles=['①','②','③','④','⑤'];
+            let rows = '';
+            let count = 0;
+            for(let i=1;i<=100;i++){
+                const q = questionsData.find(x => x.n === i);
+                if(!q) continue;
+                const sel = document.querySelector(`input[name="q${i}"]:checked`);
+                const picked = sel ? parseInt(sel.value) : null;
+                const correct = realAnswers[i];
+                const isOk = picked === correct;
+                if(mode === 'wrong' && isOk) continue; // 오답만 모드
+                count++;
+                let choicesHtml = '';
+                q.a.forEach((opt, idx) => {
+                    let style = '';
+                    if(idx+1 === correct) style = 'background:#dcfce7;font-weight:bold;';
+                    else if(idx+1 === picked && !isOk) style = 'background:#fee2e2;text-decoration:line-through;';
+                    choicesHtml += `<div style="padding:3px 8px;${style}">${circles[idx]} ${opt}</div>`;
+                });
+                const myAns = picked ? `${picked}번` : '미응답';
+                rows += `
+                <div style="margin-bottom:18px;page-break-inside:avoid;border-bottom:1px solid #eee;padding-bottom:14px;">
+                    <div style="font-weight:bold;margin-bottom:6px;">
+                        <span style="color:#FF69B4;">문제 ${i}.</span>
+                        <span style="font-size:12px;padding:2px 8px;border-radius:6px;margin-left:6px;${isOk?'background:#dcfce7;color:#15803d;':'background:#fee2e2;color:#b91c1c;'}">${isOk?'정답':'오답'}</span>
+                        <span style="font-size:12px;color:#888;margin-left:6px;">[${q.c}]</span>
+                    </div>
+                    <div style="margin-bottom:8px;">${q.q}</div>
+                    <div style="font-size:14px;margin-bottom:8px;">${choicesHtml}</div>
+                    <div style="background:#f8fafc;border-left:3px solid #FF91A4;padding:8px 12px;font-size:13px;">
+                        <b style="color:#0f6e56;">정답: ${circles[correct-1]} (${correct}번)</b> · 내 답: ${myAns}<br>${EXPLANATIONS[i] || ''}
+                    </div>
+                </div>`;
+            }
+
+            const title = mode === 'wrong' ? '틀린 문제 오답노트' : '전체 문제 + 해설';
+            const studentInfo = (typeof currentClass !== 'undefined' && currentClass) ? currentClass + ' ' + currentStudent : '';
+            const now = new Date().toLocaleString('ko-KR');
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html><head><title>${title}</title>
+                <style>
+                    body{font-family:'Malgun Gothic',sans-serif;padding:30px;color:#222;line-height:1.5;}
+                    h1{font-size:20px;color:#FF69B4;border-bottom:2px solid #FF69B4;padding-bottom:8px;}
+                    .meta{font-size:13px;color:#666;margin-bottom:20px;}
+                    @media print { .no-print{display:none;} }
+                </style></head><body>
+                <h1>🏥 간호조무사 국시대비 — ${title}</h1>
+                <div class="meta">${studentInfo} · 점수 ${window.lastScore||0}점 / 100점 · ${now}<br>총 ${count}문항</div>
+                ${rows}
+                <button class="no-print" onclick="window.print()" style="position:fixed;top:20px;right:20px;padding:12px 20px;background:#FF69B4;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ 인쇄 / PDF 저장</button>
+                <script>setTimeout(()=>window.print(), 600);<\/script>
+                </body></html>`);
+            win.document.close();
+        }
+
+
+        // ── 채점 후 각 문항에 정답·해설 표시 ──
+        function showExplanations(){
+            // 제출 버튼 숨기고 다운로드 버튼 표시
+            document.querySelector('.btn-submit').style.display = 'none';
+            for(let i=1;i<=100;i++){
+                const block = document.getElementById('qblock-' + i);
+                if(!block) continue;
+                const sel = document.querySelector(`input[name="q${i}"]:checked`);
+                const picked = sel ? parseInt(sel.value) : null;
+                const correct = realAnswers[i];
+                const isOk = picked === correct;
+
+                // 문제 번호 옆에 정답/오답 태그
+                const qnum = block.querySelector('.q-num');
+                if(qnum && !block.querySelector('.q-result-tag')){
+                    const tag = document.createElement('span');
+                    tag.className = 'q-result-tag ' + (isOk ? 'ok' : 'no');
+                    tag.textContent = isOk ? '✓ 정답' : '✗ 오답';
+                    qnum.appendChild(tag);
+                }
+
+                // 보기에 정답/내가 고른 오답 표시
+                const labels = block.querySelectorAll('.choice-label');
+                labels.forEach((lb, idx) => {
+                    if(idx+1 === correct) lb.classList.add('correct-ans');
+                    if(idx+1 === picked && !isOk) lb.classList.add('wrong-pick');
+                });
+                // 라디오 잠그기
+                block.querySelectorAll('input[type="radio"]').forEach(r => r.disabled = true);
+
+                // 해설 추가
+                if(!block.querySelector('.q-explain')){
+                    const exp = document.createElement('div');
+                    exp.className = 'q-explain';
+                    const circles=['①','②','③','④','⑤'];
+                    exp.innerHTML = `<div class="ans-line">정답: ${circles[correct-1]} (${correct}번)</div>${EXPLANATIONS[i] || ''}`;
+                    block.appendChild(exp);
+                }
+            }
+            // 다운로드 버튼 추가
+            if(!document.getElementById('dl-section')){
+                const dl = document.createElement('div');
+                dl.id = 'dl-section';
+                dl.className = 'dl-section';
+                dl.innerHTML = `
+                    <button class="dl-btn" onclick="downloadPDF('all')">📄 전체 문제+해설 저장</button>
+                    <button class="dl-btn" onclick="downloadPDF('wrong')">📝 틀린 문제만 저장</button>`;
+                document.getElementById('quizContainer').after(dl);
+            }
+        }
+
+
+        let currentStudent = '';
+        let currentClass = '';
+        let hasSubmitted = false;
+
+        function updateStartRoster() {
+          const cls = document.getElementById('startClassSelect').value;
+          const sel = document.getElementById('startStudentSelect');
+          const nameDiv = document.getElementById('start-name-confirm');
+          sel.innerHTML = '<option value="">② 번호 선택</option>';
+          nameDiv.style.display = 'none';
+          document.getElementById('start-btn').disabled = true;
+          if (!cls) { sel.disabled = true; return; }
+          sel.disabled = false;
+          (ROSTER[cls] || []).forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.no;
+            opt.textContent = s.no + '번 ' + s.name;
+            sel.appendChild(opt);
+          });
+        }
+
+        function confirmStartName() {
+          const cls = document.getElementById('startClassSelect').value;
+          const no = parseInt(document.getElementById('startStudentSelect').value);
+          const nameDiv = document.getElementById('start-name-confirm');
+          const startBtn = document.getElementById('start-btn');
+          const codeInput = document.getElementById('access-code');
+          codeInput.value = '';
+          document.getElementById('code-msg').style.display = 'none';
+          startBtn.disabled = true;
+          if (!no) { nameDiv.style.display='none'; codeInput.disabled = true; return; }
+          const student = (ROSTER[cls]||[]).find(s=>s.no===no);
+          if (student) {
+            currentClass = cls;
+            currentStudent = no + '번 ' + student.name;
+            nameDiv.style.display = 'block';
+            nameDiv.textContent = '✅ ' + cls + ' ' + currentStudent + ' 님';
+            codeInput.disabled = false;
+          }
+        }
+
+        function checkCode() {
+          const cls = document.getElementById('startClassSelect').value;
+          const entered = document.getElementById('access-code').value.trim();
+          const msg = document.getElementById('code-msg');
+          const startBtn = document.getElementById('start-btn');
+          const correctCode = ACCESS_CODES[cls];
+          if (entered === '') { msg.style.display='none'; startBtn.disabled=true; return; }
+          if (entered === correctCode) {
+            msg.style.display='block';
+            msg.style.color='#0f6e56';
+            msg.textContent='✅ 코드 확인! 시험을 시작할 수 있어요.';
+            startBtn.disabled=false;
+          } else {
+            msg.style.display='block';
+            msg.style.color='#dc2626';
+            msg.textContent='❌ 코드가 맞지 않아요. 선생님께 확인하세요.';
+            startBtn.disabled=true;
+          }
+        }
+
+
+        function updateProgress3(){
+            let answered = 0;
+            for(let i=1;i<=100;i++){
+                if(document.querySelector(`input[name="q${i}"]:checked`)) answered++;
+            }
+            document.getElementById('progress-count').textContent = answered + ' / 100';
+            document.getElementById('progress-fill3').style.width = (answered/100*100) + '%';
+            document.getElementById('progress-label').textContent = answered===100 ? '✅ 완료!' : '진행';
+        }
+        function startExam() {
+          const code = document.getElementById('access-code').value.trim();
+          if(code !== ACCESS_CODES[currentClass]){ alert('접속 코드가 맞지 않아요.'); return; }
+          document.getElementById('start-screen').style.display = 'none';
+          document.getElementById('quiz-body').style.display = 'flex';
+          document.getElementById('progress-bar-wrap').style.display = 'block';
+          document.getElementById('quiz-subtitle').textContent = currentClass + ' · ' + currentStudent;
+        }
+
+const ACCESS_CODES = {
+          "3학년 7반": "3333",   // ← 7반 코드 (원하는 숫자로 변경)
+          "3학년 8반": "4444"    // ← 8반 코드 (원하는 숫자로 변경)
+        };
+
+        const ROSTER = {
+  "2학년 7반": [
+    {no:1, name:"김민서"}, {no:2, name:"김보람"}, {no:3, name:"김승아"},
+    {no:4, name:"문정원"}, {no:5, name:"박시현"}, {no:7, name:"양수빈"},
+    {no:8, name:"염유나"}, {no:9, name:"윤희서"}, {no:10, name:"이서연"},
+    {no:11, name:"이소정"}, {no:12, name:"이정연"}, {no:13, name:"최한별"},
+    {no:14, name:"한가원"}, {no:15, name:"한가은"}
+  ],
+  "2학년 8반": [
+    {no:1, name:"공서빈"}, {no:2, name:"김가인"}, {no:3, name:"김나영"},
+    {no:4, name:"김시은"}, {no:5, name:"마수빈"}, {no:7, name:"빈수연"},
+    {no:8, name:"유지현"}, {no:9, name:"윤서연"}, {no:10, name:"이승은"},
+    {no:11, name:"전수하"}, {no:12, name:"전하영"}, {no:13, name:"최현정"},
+    {no:14, name:"하지수"}, {no:15, name:"한송연"}
+  ],
+  "3학년 7반": [
+    {no:1, name:"강민지"}, {no:2, name:"권이현"}, {no:3, name:"김나영"},
+    {no:4, name:"김나은"}, {no:5, name:"김다현"}, {no:6, name:"김민솔"},
+    {no:7, name:"김한솔"}, {no:8, name:"배보경"}, {no:9, name:"양지은"},
+    {no:10, name:"여지윤"}, {no:11, name:"임지수"}, {no:12, name:"정다혜"},
+    {no:13, name:"조나윤"}, {no:14, name:"주수현"}, {no:15, name:"황윤주"},
+    {no:16, name:"황지윤"}
+  ],
+  "3학년 8반": [
+    {no:1, name:"김도경"}, {no:2, name:"김수진"}, {no:3, name:"김아진"},
+    {no:4, name:"김지경"}, {no:5, name:"김현아"}, {no:6, name:"박세진"},
+    {no:7, name:"신정민"}, {no:8, name:"오희승"}, {no:9, name:"이승연"},
+    {no:10, name:"이예진"}, {no:11, name:"임서영"}, {no:12, name:"정아름"},
+    {no:13, name:"정윤지"}, {no:14, name:"정인혜"}, {no:15, name:"최다연"},
+    {no:16, name:"한재연"}
+  ]
+};
+
+
+        function updateModalRoster() {
+          const cls = document.getElementById('classSelect').value;
+          const sel = document.getElementById('studentSelect');
+          const nameDiv = document.getElementById('name-confirm-modal');
+          sel.innerHTML = '<option value="">② 번호 선택</option>';
+          nameDiv.style.display = 'none';
+          if (!cls) { sel.disabled = true; return; }
+          sel.disabled = false;
+          (ROSTER[cls] || []).forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.no;
+            opt.textContent = s.no + '번 ' + s.name;
+            sel.appendChild(opt);
+          });
+        }
+
+        function confirmModalName() {
+          const cls = document.getElementById('classSelect').value;
+          const no = parseInt(document.getElementById('studentSelect').value);
+          const nameDiv = document.getElementById('name-confirm-modal');
+          if (!no) { nameDiv.style.display='none'; return; }
+          const student = (ROSTER[cls]||[]).find(s=>s.no===no);
+          if (student) {
+            nameDiv.style.display='block';
+            nameDiv.textContent = '✅ ' + cls + ' ' + no + '번 ' + student.name + ' 님';
+          }
+        }
+
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvJgyDUPsGqqK4urGYhl7XQrTHBDhMBTaOJmwr9IdaJRxAUm5gPTFCdt_1ZWns7NmZ/exec';
+
+        function sendScore(){
+          const cls = currentClass;
+          const student = currentStudent;
+          if(!cls || !student){ alert('시작 화면에서 반과 번호를 선택해주세요.'); return; }
+
+          const sendResult = document.getElementById('sendResult');
+          if(hasSubmitted){
+            sendResult.style.color='#059669';
+            sendResult.textContent='✅ 이미 제출되었습니다 (첫 채점 점수만 기록)';
+            return;
+          }
+          hasSubmitted = true;
+          sendResult.style.color = '#888';
+          sendResult.textContent = '제출 중...';
+
+          // 점수 계산
+          let s1=0,s2=0,s3=0;
+          for(let i=1;i<=100;i++){
+            const sel=document.querySelector(`input[name="q${i}"]:checked`);
+            if(!sel) continue;
+            if(parseInt(sel.value)===realAnswers[i]){
+              if(i<=35)s1++; else if(i<=70)s2++; else s3++;
+            }
+          }
+          const total=s1+s2+s3;
+          const wrong=[];
+          for(let i=1;i<=100;i++){
+            const sel=document.querySelector(`input[name="q${i}"]:checked`);
+            if(!sel||parseInt(sel.value)!==realAnswers[i]) wrong.push(i);
+          }
+
+          fetch(SCRIPT_URL, {
+            method:'POST',
+            body: JSON.stringify({
+              className: cls,
+              student: student,
+              grade: '3학년',
+              round: '1차',
+              setNum: '1세트',
+              score: total,
+              correct: total,
+              total: 100,
+              wrongList: wrong.slice(0,20).join(', ')
+            })
+          })
+          .then(r=>r.json())
+          .then(d=>{
+            if(d.result==='success'){
+              sendResult.style.color='#059669';
+              sendResult.textContent='✅ 점수가 선생님께 자동 제출되었습니다!';
+            } else {
+              throw new Error(d.message);
+            }
+          })
+          .catch(()=>{
+            hasSubmitted = false; // 실패 시 재시도 허용
+            sendResult.style.color='#dc2626';
+            sendResult.textContent='⚠️ 제출 실패. 선생님께 직접 알려주세요.';
+          });
+        }
+    </script>
+</body>
+</html>
